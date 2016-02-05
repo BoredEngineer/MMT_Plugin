@@ -12,4 +12,4 @@ void MMTImpl::ShutdownModule()
 {
 }
  
-IMPLEMENT_MODULE(MMTImpl, Module)
+IMPLEMENT_MODULE(MMTImpl, MMT)
