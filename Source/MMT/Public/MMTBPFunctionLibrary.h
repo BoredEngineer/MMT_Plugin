@@ -19,8 +19,12 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Comp"), Category = "MMT physics sub-stepping")
 	static FTransform MMTGetTransformComponent(UPrimitiveComponent * Target);
 
+
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Comp Full"), Category = "MMT physics sub-stepping")
-	static FTransform MMTGetTransformComponentFull(UPrimitiveComponent * Target);
+	static FTransform MMTGetTransformComponentFull(USceneComponent * Target);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Comp With Socket"), Category = "MMT physics sub-stepping")
+	static FTransform MMTGetTransformComponentWithSocket(USceneComponent * Target, FName InSocketName);
 
 	/**
 	*	Get world-space actor's root component transform. BodyInstance is used to retrive transform, its up-to date with physics sub-stepping.
@@ -59,4 +63,5 @@ public:
 
 private:
 	static FBodyInstance* GetBodyInstance(UPrimitiveComponent* PrimitiveComponent);
+	static FTransform GetBodyInstanceTransform(USceneComponent *sceneComponent);
 };
