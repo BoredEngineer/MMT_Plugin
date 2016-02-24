@@ -4,6 +4,8 @@
 
 #include "ModuleManager.h"
 
+//DECLARE_LOG_CATEGORY_CLASS(someClassLog, Log, All)
+
 class MMTImpl : public IModuleInterface
 {
 public:

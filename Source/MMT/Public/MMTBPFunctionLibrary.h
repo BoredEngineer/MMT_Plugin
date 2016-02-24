@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Comp"), Category = "MMT physics sub-stepping")
 	static FTransform MMTGetTransformComponent(UPrimitiveComponent * Target);
 
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Comp Full"), Category = "MMT physics sub-stepping")
+	static FTransform MMTGetTransformComponentFull(UPrimitiveComponent * Target);
+
 	/**
 	*	Get world-space actor's root component transform. BodyInstance is used to retrive transform, its up-to date with physics sub-stepping.
 	*	@param Actor	Actor's reference to get the transform for
