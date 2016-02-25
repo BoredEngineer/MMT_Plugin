@@ -8,7 +8,7 @@
     "Description" : "Adds custom MMTPawn class with a custom event which allows to run BP calculations during physics sub-stepping. Adds functional library of sub-stepping friendly BP nodes.",
     "Category" : "MachineryModellingToolkit.MMT Plugin",
     "CreatedBy" : "BoredEngineer",
-    "CreatedByURL" : "https://github.com/BoredEngineer/MMT_Plugin",
+    "CreatedByURL" : "https://github.com/BoredEngineer",
 	"EnabledByDefault" : true,
  
     "Modules" :
