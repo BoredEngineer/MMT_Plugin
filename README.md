@@ -7,5 +7,8 @@ Installation:
 Copy content of this repository into [your project main folder]/Plugins/MMT/
 if you don't have Plugins folder just make one. Plugin will be automatically picked up by editor.
 
+Instruction on how to use plugin on your own without content examples:
+https://github.com/BoredEngineer/MMT_Plugin/wiki
+
 More information can be found here:
 https://forums.unrealengine.com/showthread.php?99605-OPEN-SOURCE-Machinery-Modelling-Toolkit
