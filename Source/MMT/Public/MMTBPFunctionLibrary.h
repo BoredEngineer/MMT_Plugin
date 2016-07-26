@@ -55,6 +55,14 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Add Torque -Comp"), Category = "MMT physics sub-stepping")
 	static void MMTAddTorqueComponent(UPrimitiveComponent* Target, const FVector& Torque, bool bAccelChange);
 
+	/**
+	*	Sets inertia tensor on component.
+	*	@param Target		Component's reference to set inertia tensor
+	*	@param TensorVector	Inertia tesnsor vector
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set Inertia Tensor -Comp"), Category = "MMT physics sub-stepping")
+	static void MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor);
+
 private:
 	static FBodyInstance* GetBodyInstance(UPrimitiveComponent* PrimitiveComponent);
 	static FTransform GetBodyInstanceTransform(USceneComponent *SceneComponent);

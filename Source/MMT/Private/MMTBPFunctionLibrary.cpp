@@ -96,6 +96,23 @@ void UMMTBPFunctionLibrary::MMTAddTorqueComponent(UPrimitiveComponent * Target, 
 	}
 }
 
+// AddTorque to a component using BodyInstance as its valid during physics sub-stepping
+//MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor);
+void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent * Target, const FVector& InertiaTensor)
+{
+	FBodyInstance* BodyInstance = GetBodyInstance(Target);
+	if (BodyInstance != NULL) {
+
+		PxRigidBody* PRigidBody = BodyInstance->GetPxRigidBody_AssumesLocked();
+
+		if (PRigidBody != NULL) {
+
+			PRigidBody->setMassSpaceInertiaTensor(U2PVector(InertiaTensor));
+
+		}
+	}
+}
+
 // Get instance of physics body from component
 FBodyInstance * UMMTBPFunctionLibrary::GetBodyInstance(UPrimitiveComponent * PrimitiveComponent)
 {

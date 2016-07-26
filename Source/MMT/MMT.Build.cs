@@ -19,8 +19,9 @@ public class MMT : ModuleRules
 				"UMG",
 				"Slate",
 				"SlateCore",
-				"PhysX"
-			}
+				"PhysX",
+                "APEX"
+            }
 		);
     }
 }
