@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "Engine/EngineTypes.h"
 #include "GameFramework/Pawn.h"
+#include "Components/SceneComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "PhysicsPublic.h"  //FPhysScene
 #include "PhysXPublic.h"    //PtoU conversions
