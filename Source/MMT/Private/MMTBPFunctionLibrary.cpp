@@ -91,13 +91,13 @@ void UMMTBPFunctionLibrary::MMTAddForceAtLocationComponent(UPrimitiveComponent *
 void UMMTBPFunctionLibrary::MMTAddTorqueComponent(UPrimitiveComponent * Target, const FVector & Torque, bool bAccelChange)
 {
 	FBodyInstance* BodyInstance = GetBodyInstance(Target);
+
 	if (BodyInstance != NULL) {
 		BodyInstance->AddTorque(Torque, false, bAccelChange);
 	}
 }
 
 // AddTorque to a component using BodyInstance as its valid during physics sub-stepping
-//MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor);
 void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent * Target, const FVector& InertiaTensor)
 {
 	FBodyInstance* BodyInstance = GetBodyInstance(Target);
@@ -112,6 +112,47 @@ void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent * Target, co
 		}
 	}
 }
+
+// Return mesh component reference by finding it by name
+UMeshComponent* UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(UActorComponent* Target, FString Name)
+{
+	if (IsValid(Target))
+	{
+		AActor* Owner = Target->GetOwner();
+		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UMeshComponent::StaticClass());
+
+		UMeshComponent* Result;
+
+		for (int32 i = 0; i < FoundComponents.Num(); i++)
+		{
+			if (FoundComponents[i]->GetName() == Name)
+			{
+				Result = Cast<UMeshComponent>(FoundComponents[i]);
+				if (IsValid(Result))
+				{
+					return Result;
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
+// X and Y coefficients of friction define friction coefficient only in respective axes, for intermediate directions, value of friction coefficient needs to be interpolated.
+// We use points on ellipse to as interpolated coefficients and X and Y friction coefficients define radii of the ellipse.
+void UMMTBPFunctionLibrary::GetMuFromFrictionElipse(const FVector& VelocityDirectionNormalizedWS, const FVector& ForwardVectorWS, const float MuXStatic, const float MuXKinetic, const float MuYStatic, const float MuYKinetic,
+	float& MuStatic, float& MuKinetic) //output variables
+{
+	float VdotX = FVector::DotProduct(VelocityDirectionNormalizedWS, ForwardVectorWS);
+	float SqrtOneMinusVdotX2 = sqrtf(1.0f - VdotX * VdotX);
+	
+	FVector2D MuStaticVect = FVector2D(VdotX * MuXStatic, SqrtOneMinusVdotX2 * MuYStatic);
+	FVector2D MuKineticVect = FVector2D(VdotX * MuXKinetic, SqrtOneMinusVdotX2 * MuYKinetic);
+
+	MuStatic = MuStaticVect.Size();
+	MuKinetic = MuKineticVect.Size();
+}
+
 
 // Get instance of physics body from component
 FBodyInstance * UMMTBPFunctionLibrary::GetBodyInstance(UPrimitiveComponent * PrimitiveComponent)

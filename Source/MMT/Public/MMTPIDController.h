@@ -14,22 +14,23 @@ public:
 	// Sets default values for this component
 	UMMTPIDController();
 
-
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	/**
 	* Minimum of 3 errors need to be stored. Storing more errors is necessary for Integral part of the controller
 	* as it corrects systematic errors of measurements taken over time.
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings", meta = (ClampMin = "3", UIMin = "3"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings", meta = (ClampMin = "3", UIMin = "3"), meta = (ToolTip = "Minimum of 3 errors need to be stored. Storing more errors is necessary for Integral part of the controller as it corrects systematic errors of measurements taken over time."))
 	int32 NumOfErrorsToStore;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings", meta = (ToolTip = "Proportional coefficient is responsible for how fast error should be corrected"))
 	float ProportionalCoefficient;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings", meta = (ToolTip = "Integral coefficient is responsible for correcting systematic errors of measurement over time"))
 	float IntegralCoefficient;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PID Settings", meta = (ToolTip = "Derivative coefficient is responsible for correcting oscillation introduced by derivative coefficient"))
 	float DerivativeCoefficient;
 
 	/**

@@ -26,7 +26,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FTransform MMTPawnTransform = FTransform::Identity;
 
-	// Delegate for runnung custom physics update
+	// Delegate for running custom physics update
 	FCalculateCustomPhysics OnCalculateCustomPhysics;
 	void CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance);
 
@@ -35,7 +35,7 @@ public:
 	void MMTPhysicsTick(float SubstepDeltaTime);
 
 	/**
-	*	Get world-space transform of this pawn. BodyInstance is used to retrive transform, its up-to date with physics sub-stepping.
+	*	Get world-space transform of this pawn. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
 	*	@return			Pawn's transform in world space
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Transform -Pawn"), Category = "MMT physics sub-stepping")

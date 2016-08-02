@@ -12,7 +12,7 @@ class MMT_API UMMTBPFunctionLibrary : public UBlueprintFunctionLibrary
 public:
 	
 	/**
-	*	Get world-space component's transform. BodyInstance is used to retrive transform, its up-to date with physics sub-stepping.
+	*	Get world-space component's transform. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
 	*	@param Target	Component's reference to get the transform for
 	*	@param InSocketName	Optional socket name parameter. Will return socket transform, if socket not found returns component's transform
 	*	@return			Component's or socket's transform in world space
@@ -21,7 +21,7 @@ public:
 	static FTransform MMTGetTransformComponent(USceneComponent * Target, FName InSocketName);
 
 	/**
-	*	Get world-space actor's root component transform. BodyInstance is used to retrive transform, its up-to date with physics sub-stepping.
+	*	Get world-space actor's root component transform. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
 	*	@param Actor	Actor's reference to get the transform for
 	*	@return			Actor's root component transform in world space
 	*/
@@ -58,10 +58,35 @@ public:
 	/**
 	*	Sets inertia tensor on component.
 	*	@param Target		Component's reference to set inertia tensor
-	*	@param TensorVector	Inertia tesnsor vector
+	*	@param TensorVector	Inertia tensor vector
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set Inertia Tensor -Comp"), Category = "MMT physics sub-stepping")
 	static void MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor);
+
+	/**
+	*	Returns reference to mesh component by the name of the component.
+	*	@param Target		Components reference that requests reference to mesh component
+	*	@param TensorVector	Name of the mesh component that needs to be found
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Mesh Component Reference by Name"), Category = "MMT Utility")
+	static UMeshComponent* GetMeshComponentReferenceByName(UActorComponent* Target, FString Name);
+
+
+	/**
+	*	Returns static and kinetic friction coefficients from friction ellipse in relation to direction of velocity vector
+	*	@param VelocityDirectionNormalizedWS	Normalized direction vector in world space for which friction coefficient need to be calculated
+	*	@param ForwardVectorWS					World space direction that defines direction of X axis of friction ellipse
+	*	@param MuXStatic				Static friction coefficient in X axis
+	*	@param MuXKinetic				Kinetic friction coefficient in X axis
+	*	@param MuYStatic				Static friction coefficient in Y axis
+	*	@param MuYKinetic				Kinetic friction coefficient in Y axis
+	*	@return	MuStatic				Calculated static friction coefficient
+	*	@return	MuKinetic				Calculated kinetic friction coefficient
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Friction Coefficients from Friction Ellipse"), Category = "MMT Utility")
+	static void GetMuFromFrictionElipse(const FVector& VelocityDirectionNormalizedWS, const FVector& ForwardVectorWS, const float MuXStatic, const float MuXKinetic, const float MuYStatic, const float MuYKinetic, 
+										float& MuStatic, float& MuKinetic); //output variables
+
 
 private:
 	static FBodyInstance* GetBodyInstance(UPrimitiveComponent* PrimitiveComponent);

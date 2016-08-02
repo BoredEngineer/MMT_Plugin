@@ -14,6 +14,16 @@ UMMTPIDController::UMMTPIDController()
 }
 
 
+// Called when the game starts or when spawned
+void UMMTPIDController::BeginPlay()
+{
+	MeasuredErrors.Reserve(NumOfErrorsToStore);
+
+	Super::BeginPlay();
+}
+
+
+
 // Add error measurement into array
 void UMMTPIDController::AddMeasuredError(const FPIDErrorItem& PIDErrorItem)
 {
