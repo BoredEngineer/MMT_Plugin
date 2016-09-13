@@ -12,5 +12,9 @@
 #include "PhysicsPublic.h"  //FPhysScene
 #include "PhysXPublic.h"    //PtoU conversions
 #include "Runtime/Engine/Private/PhysicsEngine/PhysXSupport.h" //For Scene Locking using Epic's awesome helper macros like SCOPED_SCENE_READ_LOCK
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SplineComponent.h"
+#include "Components/MeshComponent.h"
+#include "Containers/UnrealString.h"
 //Module
 #include "MMT.h"

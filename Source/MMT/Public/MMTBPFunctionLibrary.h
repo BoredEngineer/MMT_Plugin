@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SplineComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "MMTBPFunctionLibrary.generated.h"
 
@@ -66,11 +68,26 @@ public:
 	/**
 	*	Returns reference to mesh component by the name of the component.
 	*	@param Target		Components reference that requests reference to mesh component
-	*	@param TensorVector	Name of the mesh component that needs to be found
+	*	@param Name			Name of the mesh component that needs to be found
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Mesh Component Reference by Name"), Category = "MMT Utility")
 	static UMeshComponent* GetMeshComponentReferenceByName(UActorComponent* Target, FString Name);
 
+	/**
+	*	Returns reference to spline component by the name of the component.
+	*	@param Target		Components reference that requests reference to mesh component
+	*	@param Name			Name of the spline component that needs to be found
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Spline Component Reference by Name"), Category = "MMT Utility")
+	static USplineComponent* GetSplineComponentReferenceByName(UActorComponent* Target, FString Name);
+
+	/**
+	*	Returns reference to instanced static mesh component by the name of the component.
+	*	@param Target		Components reference that requests reference to mesh component
+	*	@param Name			Name of the spline component that needs to be found
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Instanced Static Mesh Component Reference by Name"), Category = "MMT Utility")
+	static UInstancedStaticMeshComponent* GetInstancedStaticMeshComponentReferenceByName(UActorComponent* Target, FString Name);
 
 	/**
 	*	Returns static and kinetic friction coefficients from friction ellipse in relation to direction of velocity vector

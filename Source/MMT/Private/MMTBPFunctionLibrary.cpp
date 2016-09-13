@@ -138,6 +138,57 @@ UMeshComponent* UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(UActorCom
 	return nullptr;
 }
 
+// Return spline component reference by finding it by name
+USplineComponent* UMMTBPFunctionLibrary::GetSplineComponentReferenceByName(UActorComponent* Target, FString Name)
+{
+	if (IsValid(Target))
+	{
+		AActor* Owner = Target->GetOwner();
+		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(USplineComponent::StaticClass());
+
+		USplineComponent* Result;
+
+		for (int32 i = 0; i < FoundComponents.Num(); i++)
+		{
+			if (FoundComponents[i]->GetName() == Name)
+			{
+				Result = Cast<USplineComponent>(FoundComponents[i]);
+				if (IsValid(Result))
+				{
+					return Result;
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
+// Return instanced static mesh component reference by finding it by name
+UInstancedStaticMeshComponent* UMMTBPFunctionLibrary::GetInstancedStaticMeshComponentReferenceByName(UActorComponent* Target, FString Name)
+{
+	if (IsValid(Target))
+	{
+		AActor* Owner = Target->GetOwner();
+		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UInstancedStaticMeshComponent::StaticClass());
+
+		UInstancedStaticMeshComponent* Result;
+
+		for (int32 i = 0; i < FoundComponents.Num(); i++)
+		{
+			if (FoundComponents[i]->GetName() == Name)
+			{
+				Result = Cast<UInstancedStaticMeshComponent>(FoundComponents[i]);
+				if (IsValid(Result))
+				{
+					return Result;
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
+
 // X and Y coefficients of friction define friction coefficient only in respective axes, for intermediate directions, value of friction coefficient needs to be interpolated.
 // We use points on ellipse to as interpolated coefficients and X and Y friction coefficients define radii of the ellipse.
 void UMMTBPFunctionLibrary::GetMuFromFrictionElipse(const FVector& VelocityDirectionNormalizedWS, const FVector& ForwardVectorWS, const float MuXStatic, const float MuXKinetic, const float MuYStatic, const float MuYKinetic,
