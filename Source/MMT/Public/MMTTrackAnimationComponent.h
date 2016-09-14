@@ -99,4 +99,7 @@ private:
 
 	// Find reference to named components
 	void GetComponentsReference();
+
+	//Get transform along spline with flipped rotation when spline flips
+	FTransform GetAllignedTransformAlongSpline(const float& Distance);
 };

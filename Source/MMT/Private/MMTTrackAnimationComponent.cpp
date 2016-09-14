@@ -169,22 +169,15 @@ void UMMTTrackAnimationComponent::UpdateTrackAnimation(const float& DeltaTime)
 		float SplineLength = TrackSplineComponent->GetSplineLength();
 
 		//avoid looping around the spline to maintain precision
-		TreadMeshPositionOffset = FGenericPlatformMath::Fmod(TreadMeshPositionOffset + TreadsLinearVelocity * DeltaTime, SplineLength);
+		TreadMeshPositionOffset = FMath::Fmod(TreadMeshPositionOffset + TreadsLinearVelocity * DeltaTime, SplineLength);
 
 		
 		for (int32 i = 0; i < TreadsOnSide; i++)
 		{
-			float DistanceAlongSpline = FGenericPlatformMath::Fmod((float)i * (SplineLength / (float)TreadsOnSide) + TreadMeshPositionOffset, SplineLength);
+			float DistanceAlongSpline = FMath::Fmod((float)i * (SplineLength / (float)TreadsOnSide) + TreadMeshPositionOffset, SplineLength);
 			DistanceAlongSpline = DistanceAlongSpline < 0.0 ? SplineLength + DistanceAlongSpline : DistanceAlongSpline;
 
-			FTransform TransformAlongSPline = TrackSplineComponent->GetTransformAtDistanceAlongSpline(DistanceAlongSpline, ESplineCoordinateSpace::Local);
-
-			//Check if right vector is negative, as it happens when spline flips up-side down. If it's negative then roll instance 180 degrees
-			FRotator TreadRotator = TransformAlongSPline.Rotator();
-			TreadRotator.Roll = FQuat(TreadRotator).GetRightVector().Y < 0.0 ? 180.0f : TreadRotator.Roll;
-
-			TreadsInstancedMeshComponent->UpdateInstanceTransform(i, FTransform(TreadRotator, TransformAlongSPline.GetTranslation(), TransformAlongSPline.GetScale3D()), false,
-				(i + 1 == TreadsOnSide) ? true : false, false);
+			TreadsInstancedMeshComponent->UpdateInstanceTransform(i, GetAllignedTransformAlongSpline(DistanceAlongSpline), false, (i + 1 == TreadsOnSide) ? true : false, false);
 		}
 
 	}
@@ -218,14 +211,22 @@ void UMMTTrackAnimationComponent::BuildTrackMeshAndSpline()
 			for (int32 i = 0; i < TreadsOnSide; i++)
 			{
 				float DistanceAlongSpline = TrackSplineComponent->GetSplineLength() / (float)TreadsOnSide * (float)i;
-				FTransform TransformAlongSPline = TrackSplineComponent->GetTransformAtDistanceAlongSpline(DistanceAlongSpline, ESplineCoordinateSpace::Local);
 
-				//Check if right vector is negative, as it happens when spline flips up-side down. If it's negative then roll instance 180 degrees
-				FRotator TreadRotator = TransformAlongSPline.Rotator();
-				TreadRotator.Roll = FQuat(TreadRotator).GetRightVector().Y < 0.0 ? 180.0f : TreadRotator.Roll;
-
-				TreadsInstancedMeshComponent->AddInstance(FTransform(TreadRotator, TransformAlongSPline.GetTranslation(), TransformAlongSPline.GetScale3D()));
+				//TreadsInstancedMeshComponent->AddInstance(FTransform(TreadRotator, TransformAlongSPline.GetTranslation(), TransformAlongSPline.GetScale3D()));
+				TreadsInstancedMeshComponent->AddInstance(GetAllignedTransformAlongSpline(DistanceAlongSpline));
 			}
 		}
 	}
+}
+
+//Set default pose for spline and add tread meshes
+FTransform UMMTTrackAnimationComponent::GetAllignedTransformAlongSpline(const float& Distance)
+{
+	FTransform TransformAlongSPline = TrackSplineComponent->GetTransformAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::Local);
+
+	//Check if right vector is negative, as it happens when spline flips up-side down. If it's negative then roll instance 180 degrees
+	FRotator TreadRotator = TransformAlongSPline.Rotator();
+	TreadRotator.Roll = FQuat(TreadRotator).GetRightVector().Y < 0.0 ? 180.0f : TreadRotator.Roll;
+	
+	return FTransform(TreadRotator, TransformAlongSPline.GetTranslation(), TransformAlongSPline.GetScale3D());
 }
