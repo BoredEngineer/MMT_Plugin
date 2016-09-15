@@ -1,5 +1,6 @@
 //Copyright(c) 2016 Viktor Kuropiatnyk "BoredEngineer"
 
+#pragma once 
 //Engine
 #include "CoreUObject.h"
 #include "Engine.h"
@@ -18,3 +19,6 @@
 #include "Containers/UnrealString.h"
 //Module
 #include "MMT.h"
+
+//For UE4 Profiler ~ Stat Group
+DECLARE_STATS_GROUP(TEXT("MMT"), STATGROUP_MMT, STATCAT_Advanced);

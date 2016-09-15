@@ -4,13 +4,20 @@
 #include "MMTBPFunctionLibrary.h"
 
 
+//For UE4 Profiler ~ Stat
+//DECLARE_CYCLE_STAT(TEXT("MMT ~ Get Transform Component"), STAT_MMTGetTransformComponent, STATGROUP_MMT);
+
 UMMTBPFunctionLibrary::UMMTBPFunctionLibrary(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
 // Get Component transform from BodyInstance as its valid during physics sub-stepping
-FTransform UMMTBPFunctionLibrary::MMTGetTransformComponent(USceneComponent *Target, FName InSocketName = NAME_None) {
+FTransform UMMTBPFunctionLibrary::MMTGetTransformComponent(USceneComponent *Target, FName InSocketName = NAME_None) 
+{
+	//Gather stats
+	//SCOPE_CYCLE_COUNTER(STAT_MMTGetTransformComponent);
+
 	if (Target == NULL) {
 		return FTransform::Identity;
 	}

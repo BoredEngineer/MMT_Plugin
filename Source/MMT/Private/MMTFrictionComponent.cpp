@@ -4,6 +4,12 @@
 #include "MMTBPFunctionLibrary.h"
 #include "MMTFrictionComponent.h"
 
+//For UE4 Profiler ~ Stat
+DECLARE_CYCLE_STAT(TEXT("MMT ~ Register friction point"), STAT_MMTRegisterFrictionPoint, STATGROUP_MMT);
+DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Physics Update"), STAT_MMTFrictionPhysicsUpdate, STATGROUP_MMT);
+DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Apply"), STAT_MMTFrictionApply, STATGROUP_MMT);
+
+
 //Set default values
 UMMTFrictionComponent::UMMTFrictionComponent()
 {
@@ -34,6 +40,9 @@ void UMMTFrictionComponent::BeginPlay()
 void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& NormalImpulseAtPoint, const FVector& ContactPointLocation, const FVector& ContactPointNormal, 
 													UPhysicalMaterial* PhysicalMaterial, const FVector InducedVelocity)
 {
+	//Gather stats
+	SCOPE_CYCLE_COUNTER(STAT_MMTRegisterFrictionPoint);
+
 	FContactPointData NewContactPoint;
 	TEnumAsByte<EPhysicalSurface> PhysicalSurfaceLoc = EPhysicalSurface::SurfaceType_Default;
 
@@ -99,6 +108,9 @@ void UMMTFrictionComponent::GetComponentsReference()
 // Handles logic of contact points stored in array and passes parameters to ApplyFriction() where actual physics calculations are done
 void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce)
 {
+	//Gather stats
+	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionPhysicsUpdate);
+
 	FVector NormalizedReactionForceOut = FVector::ZeroVector;
 	FVector RollingFrictionForceOut = FVector::ZeroVector;
 
@@ -147,6 +159,9 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
 	const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce)
 {
+	// Gather stats
+	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionApply);
+
 	float NormalForceAtContactPoint = PreNormalForceAtPoint.ProjectOnTo(ContactPointNormal).Size();
 	
 	// Check if Effected Component Mesh reference is valid and escape early otherwise
