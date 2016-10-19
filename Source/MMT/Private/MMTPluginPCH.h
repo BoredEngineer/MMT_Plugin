@@ -17,6 +17,8 @@
 #include "Components/SplineComponent.h"
 #include "Components/MeshComponent.h"
 #include "Containers/UnrealString.h"
+#include "Runtime/CoreUObject/Public/UObject/UObjectBaseUtility.h"
+
 //Module
 #include "MMT.h"
 

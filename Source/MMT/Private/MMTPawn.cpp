@@ -11,6 +11,10 @@ AMMTPawn::AMMTPawn()
 	// Make sure it ticks before physics update
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
+	SecondaryTick.TickGroup = TG_PostPhysics;
+	SecondaryTick.bCanEverTick = true;
+	SecondaryTick.bStartWithTickEnabled = true;
+
 	// Bind function delegate
 	OnCalculateCustomPhysics.BindUObject(this, &AMMTPawn::CustomPhysics);
 }
@@ -24,6 +28,18 @@ void AMMTPawn::BeginPlay()
 	}
 
 	Super::BeginPlay();
+
+	
+	//if (!IsTemplate() && SecondaryTick.bCanEverTick)
+	//{
+		SecondaryTick.Target = this;
+		SecondaryTick.SetTickFunctionEnable(SecondaryTick.bStartWithTickEnabled);
+		SecondaryTick.RegisterTickFunction(GetLevel());
+		//SecondaryTick.RegisterTickFunction(GetWorld()->GetLevel(0));
+		//SecondaryTick.RegisterTickFunction(GetOwner()->GetLevel());
+		
+	//}
+	
 }
 
 // Called every frame
@@ -38,6 +54,23 @@ void AMMTPawn::Tick(float DeltaTime)
 
 }
 
+// Called every frame after physics update
+void AMMTPawn::TickPostPhysics(	float DeltaSeconds,	ELevelTick TickType, FSecondaryTickFunction& ThisTickFunction)
+{
+	// Non-player update.
+	const bool bShouldTick = ((TickType != LEVELTICK_ViewportsOnly) || GetOwner()->ShouldTickIfViewportsOnly());
+	if (bShouldTick)
+	{
+		if (!IsPendingKill() && GetWorld())
+		{
+			//if (GetOwner()->GetWorldSettings() != NULL && !IsRunningDedicatedServer())
+			if (GetWorldSettings() != NULL && !IsRunningDedicatedServer())
+			{
+				MMTAfterPhysicsTick(DeltaSeconds);
+			}
+		}
+	}
+}
 
 // Called to bind functionality to input
 void AMMTPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)

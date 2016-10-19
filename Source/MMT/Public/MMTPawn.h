@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Pawn.h"
+#include "MMTSecondaryTick.h"
 #include "MMTPawn.generated.h"
 
 UCLASS()
@@ -13,11 +14,17 @@ public:
 	// Sets default values for this pawn's properties
 	AMMTPawn();
 
+	//Secondary tick component for post-physics calls
+	FSecondaryTickFunction SecondaryTick;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
+	
+	// Called every frame after physics update
+	void TickPostPhysics(float DeltaSeconds, ELevelTick TickType, FSecondaryTickFunction& ThisTickFunction);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
@@ -30,9 +37,13 @@ public:
 	FCalculateCustomPhysics OnCalculateCustomPhysics;
 	void CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance);
 
-	/* This event is called on every physics tick, including sub-steps. Physics update is running in parallel thread, when sub-stepping is enabled don't call any non-physics methods, draw debug or print string functions or engine will crash. */
+	/* This event is called on every physics tick, including sub-steps. */
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "MMT Physics Tick"), Category = "MMT physics sub-stepping")
 	void MMTPhysicsTick(float SubstepDeltaTime);
+
+	/* This event is called ones per frame after physics update. */
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "MMT Post-Physics Tick"), Category = "MMT")
+	void MMTAfterPhysicsTick(float DeltaTime);
 
 	/**
 	*	Get world-space transform of this pawn. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
