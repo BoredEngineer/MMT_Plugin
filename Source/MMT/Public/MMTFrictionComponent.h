@@ -85,6 +85,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
 	void PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce);
 
+	/**
+	*	Switches debug mode on/off with every call
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
+	void ToggleDebugMode();
+
 private:
 	UPROPERTY()
 	UMeshComponent* EffectedComponentMesh;
@@ -100,6 +106,9 @@ private:
 
 	UPROPERTY()
 	FVector	PrevRelativeVelocityAtPoint;
+
+	UPROPERTY()
+	const UEnum* PhysicalSurfaceEnum;
 
 	//Find reference to named components
 	void GetComponentsReference();

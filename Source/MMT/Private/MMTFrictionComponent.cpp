@@ -22,7 +22,8 @@ UMMTFrictionComponent::UMMTFrictionComponent()
 
 	PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient());
 	//PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient(EPhysicalSurface::SurfaceType_Default, 0.02f));
-
+	
+	PhysicalSurfaceEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPhysicalSurface"));
 
 }
 
@@ -154,6 +155,11 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 	}
 }
 
+//Switch debug mode on/off
+void UMMTFrictionComponent::ToggleDebugMode()
+{
+	IsDebugMode = !IsDebugMode;
+}
 
 // Runs calculations on friction component, applies friction force to effected component and returns reaction forces(forces that can effect track or a wheel)
 void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
@@ -207,10 +213,18 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	if (StoppingForce.Size() >= MuStaticByLoad)
 	{
 		ApplicationForce = StoppingForce.GetClampedToSize(0.0f, NormalForceAtContactPoint * MuKinetic);
+		if (IsDebugMode)
+		{
+			DrawDebugString(GetWorld(), ContactPointLocation, FString("Kinetic Friction"), nullptr, FColor::Magenta, 0.0f, false);
+		}
 	}
 	else
 	{
 		ApplicationForce = StoppingForce.GetClampedToSize(0.0f, MuStaticByLoad);
+		if (IsDebugMode)
+		{
+			DrawDebugString(GetWorld(), ContactPointLocation, FString("Static Friction"), nullptr, FColor::Red, 0.0f, false);
+		}
 	}
 
 	//Apply friction force
@@ -233,4 +247,12 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	}
 
 	RollingFrictionForce = RelativeVelocityAtPoint.GetSafeNormal() * NormalForceAtContactPoint * RollingFrictionCoefficient;
+
+	if (IsDebugMode)
+	{
+		DrawDebugLine(GetWorld(), ContactPointLocation, ContactPointLocation + ApplicationForce * 0.005f, FColor::Yellow, false, 0.0f, 0, 3.0f);
+		DrawDebugLine(GetWorld(), ContactPointLocation, ContactPointLocation + RollingFrictionForce * 0.005f, FColor::Green, false, 0.0f, 0, 3.0f);
+		DrawDebugString(GetWorld(), ContactPointLocation+FVector(0.0f, 0.0f, 50.0f), (PhysicalSurfaceEnum ? PhysicalSurfaceEnum->GetEnumName(PhysicalSurface) : FString("<Invalid Enum>")), nullptr, FColor::Cyan, 0.0f, false);
+		//DrawDebugString(GetWorld(), ContactPointLocation + FVector(0.0f, 0.0f, 25.0f), FString("Normal Force: ") + FString::SanitizeFloat(NormalForceAtContactPoint), nullptr, FColor::Turquoise, 0.0f, false);
+	}
 }
