@@ -73,9 +73,9 @@ void AMMTPawn::TickPostPhysics(	float DeltaSeconds,	ELevelTick TickType, FSecond
 }
 
 // Called to bind functionality to input
-void AMMTPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
+void AMMTPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(InputComponent);
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 // Called by OnCalculateCustomPhysics delegate when physics update is initiated

@@ -65,6 +65,18 @@ FTransform UMMTBPFunctionLibrary::MMTGetTransformComponent(USceneComponent *Targ
 	}
 }
 
+// Set Component transform on BodyInstance level, to be valid during physics sub-stepping
+void UMMTBPFunctionLibrary::MMTSetTransformComponent(USceneComponent * Target, const FTransform& Transform, bool bTeleport)
+{
+	UPrimitiveComponent *primitiveComponent = Cast<UPrimitiveComponent>(Target);
+	if (primitiveComponent == NULL) {
+		return;
+	}
+	FBodyInstance *TargetBodyInstance = primitiveComponent->GetBodyInstance();
+
+	TargetBodyInstance->SetBodyTransform(Transform, bTeleport ? ETeleportType::TeleportPhysics : ETeleportType::None);
+}
+
 // Get Actor transform from BodyInstance as its valid during physics sub-stepping
 FTransform UMMTBPFunctionLibrary::MMTGetTransformActor(AActor * Actor)
 {

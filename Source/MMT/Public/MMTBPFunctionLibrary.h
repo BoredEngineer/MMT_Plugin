@@ -23,6 +23,15 @@ public:
 	static FTransform MMTGetTransformComponent(USceneComponent * Target, FName InSocketName);
 
 	/**
+	*	Sets component's BodyInstance transform. To be used during sub-stepping to move/rotate PhysX bodies directly.
+	*	@param Target	Component's reference to set transform for
+	*	@param bTeleport		No velocity will be inferred, object is moved in instant
+	*	@param Transform	New transform to be set
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set Transform -Comp"), Category = "MMT physics sub-stepping")
+	static void MMTSetTransformComponent(USceneComponent * Target, const FTransform& Transform, bool bTeleport);
+
+	/**
 	*	Get world-space actor's root component transform. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
 	*	@param Actor	Actor's reference to get the transform for
 	*	@return			Actor's root component transform in world space
