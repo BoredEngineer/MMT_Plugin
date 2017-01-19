@@ -1,7 +1,7 @@
 {
-	"Changelist" : 3224400,
+	"Changelist" : 3249277,
 	"CompatibleChangelist" : 3195953,
-	"BuildId" : "abb1a0cd-6b6d-409d-8512-711be2fb95de",
+	"BuildId" : "60575243-9011-44e0-80c2-3506b6c83739",
 	"Modules" : 
 	{
 		"MMT" : "UE4Editor-MMT.dll"

@@ -29,7 +29,7 @@ public:
 	//Called from editor on compilation of BP
 	virtual void InitializeComponent() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of sprockets, idlers and roadwheels to be animated to be animated"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of sprockets, idlers and roadwheels to be animated"))
 	TArray<FString> SprocketsIdlersRoadwheelsNames;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Spline component that defines path of the track"))
@@ -73,7 +73,7 @@ public:
 	void UpdateTrackAnimation(const float& DeltaTime);
 
 	/**
-	*	Call from constructor to set track spline component into default state and add tread instances to Treads Instanced Mesh component.
+	*	Call from BP constructor to set track spline component into default state and add tread instances to Treads Instanced Mesh component.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Track Animation Component")
 	void BuildTrackMeshAndSpline();

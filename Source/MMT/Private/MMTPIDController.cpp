@@ -7,6 +7,10 @@
 // Sets default values
 UMMTPIDController::UMMTPIDController()
 {
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = false;
+
 	NumOfErrorsToStore = 5;
 	ProportionalCoefficient = 0.1f;
 	IntegralCoefficient = 0.0f;

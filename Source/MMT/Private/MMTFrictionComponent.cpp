@@ -13,6 +13,10 @@ DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Apply"), STAT_MMTFrictionApply, STATGROU
 //Set default values
 UMMTFrictionComponent::UMMTFrictionComponent()
 {
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = false;
+
 	EffectedComponentName = FString("none");
 	IsDebugMode = false;
 	MuXStatic = 0.75f;
