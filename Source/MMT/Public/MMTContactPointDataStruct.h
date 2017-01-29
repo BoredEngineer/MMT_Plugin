@@ -3,11 +3,11 @@
 #pragma once
 
 #include "Engine/EngineTypes.h"
-#include "MMTContactPointData.generated.h"
+#include "MMTContactPointDataStruct.generated.h"
 
 
 USTRUCT(BlueprintType)
-struct FContactPointData
+struct FContactPointDataStruct
 {
 	GENERATED_BODY()
 
@@ -31,7 +31,7 @@ struct FContactPointData
 		
 
 	//Default constructor
-	FContactPointData()
+	FContactPointDataStruct()
 	{
 		IsPointActive = false;
 		InducedVelocity = FVector::ZeroVector;

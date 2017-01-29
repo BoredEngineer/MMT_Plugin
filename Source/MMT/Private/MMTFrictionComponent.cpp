@@ -24,7 +24,7 @@ UMMTFrictionComponent::UMMTFrictionComponent()
 	MuYStatic = 1.0f;
 	MuYKinetic = 0.75f;
 
-	PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient());
+	PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficientStruct());
 	//PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient(EPhysicalSurface::SurfaceType_Default, 0.02f));
 	
 	PhysicalSurfaceEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPhysicalSurface"));
@@ -48,7 +48,7 @@ void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& NormalImpulseAt
 	//Gather stats
 	SCOPE_CYCLE_COUNTER(STAT_MMTRegisterFrictionPoint);
 
-	FContactPointData NewContactPoint;
+	FContactPointDataStruct NewContactPoint;
 	TEnumAsByte<EPhysicalSurface> PhysicalSurfaceLoc = EPhysicalSurface::SurfaceType_Default;
 
 	NewContactPoint.IsPointActive = true;
@@ -239,7 +239,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 
 	
 	//Calculate Rolling Friction
-	float RollingFrictionCoefficient = FPhysicalSurfaceRollingFrictionCoefficient().RollingFrictionCoefficient;
+	float RollingFrictionCoefficient = FPhysicalSurfaceRollingFrictionCoefficientStruct().RollingFrictionCoefficient;
 	
 	for (int32 i = 0; i < PhysicsSurfaceResponse.Num(); i++)
 	{

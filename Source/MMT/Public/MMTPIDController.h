@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "MMTPIDErrorItem.h"
+#include "MMTPIDErrorItemStruct.h"
 #include "MMTPIDController.generated.h"
 
 UCLASS(ClassGroup = (MMT), meta = (BlueprintSpawnableComponent))
@@ -38,7 +38,7 @@ public:
 	*	@param PIDErrorItem	measurement error and delta time item
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT PID Controller")
-	void AddMeasuredError(const FPIDErrorItem& PIDErrorItem);
+	void AddMeasuredError(const FPIDErrorItemStruct& PIDErrorItem);
 
 	/**
 	*	Get calculated control signal
@@ -55,5 +55,5 @@ public:
 
 private:
 	UPROPERTY()
-	TArray<FPIDErrorItem> MeasuredErrors;
+	TArray<FPIDErrorItemStruct> MeasuredErrors;
 };

@@ -29,7 +29,7 @@ void UMMTPIDController::BeginPlay()
 
 
 // Add error measurement into array
-void UMMTPIDController::AddMeasuredError(const FPIDErrorItem& PIDErrorItem)
+void UMMTPIDController::AddMeasuredError(const FPIDErrorItemStruct& PIDErrorItem)
 {
 	MeasuredErrors.Insert(PIDErrorItem, 0);
 		

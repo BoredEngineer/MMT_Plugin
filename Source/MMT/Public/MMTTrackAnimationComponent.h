@@ -8,7 +8,7 @@
 #include "Components/MeshComponent.h"
 #include "Containers/UnrealString.h"
 #include "Engine/EngineTypes.h"
-#include "MMTTrackSplinePointAnimated.h"
+#include "MMTTrackSplinePointAnimatedStruct.h"
 #include "MMTTrackAnimationComponent.generated.h"
 
 UCLASS(ClassGroup = (MMT), meta = (BlueprintSpawnableComponent))
@@ -45,7 +45,7 @@ public:
 	TArray<FVector> TrackSplinePointTangents;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of spline point indexes and references for their animation"))
-	TArray<FTrackSplinePointAnimated> AnimatedTrackSplinePoints;
+	TArray<FTrackSplinePointAnimatedStruct> AnimatedTrackSplinePoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Amount of treads on this track"))
 	int32 TreadsOnSide;

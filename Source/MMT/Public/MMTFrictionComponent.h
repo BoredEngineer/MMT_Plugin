@@ -7,8 +7,8 @@
 #include "Containers/UnrealString.h"
 #include "Engine/EngineTypes.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-#include "MMTPhysicalSurfaceRollingFrictionCoefficient.h"
-#include "MMTContactPointData.h"
+#include "MMTPhysicalSurfaceRollingFrictionCoefficientStruct.h"
+#include "MMTContactPointDataStruct.h"
 #include "MMTFrictionComponent.generated.h"
 
 UCLASS(ClassGroup = (MMT), meta = (BlueprintSpawnableComponent))
@@ -41,7 +41,7 @@ public:
 	float MuYKinetic;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Array of physical surfaces and desired rolling friction coefficients for them"))
-	TArray<FPhysicalSurfaceRollingFrictionCoefficient> PhysicsSurfaceResponse;
+	TArray<FPhysicalSurfaceRollingFrictionCoefficientStruct> PhysicsSurfaceResponse;
 
 	/**
 	*	Register collision event of the component related to Friction Component
@@ -99,7 +99,7 @@ private:
 	FVector FrictionSurfaceVelocity; //Linear Track Velocity in case of a tank
 
 	UPROPERTY()
-	TArray<FContactPointData> ContactPointsData;
+	TArray<FContactPointDataStruct> ContactPointsData;
 
 	UPROPERTY()
 	FTransform ReferenceFrameTransform;

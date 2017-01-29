@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "MMTPIDErrorItem.generated.h"
+#include "MMTPIDErrorItemStruct.generated.h"
 
 
 USTRUCT(BlueprintType)
-struct FPIDErrorItem
+struct FPIDErrorItemStruct
 {
 	GENERATED_BODY()
 
@@ -17,7 +17,7 @@ struct FPIDErrorItem
 	float DeltaTime;
 
 	//Default constructor
-	FPIDErrorItem()
+	FPIDErrorItemStruct()
 	{
 		MeasuredValue = 0.0f;
 		DeltaTime = 0.0f;

@@ -5,11 +5,11 @@
 #include "Components/MeshComponent.h"
 #include "Containers/UnrealString.h"
 #include "Engine/EngineTypes.h"
-#include "MMTTrackSplinePointAnimated.generated.h"
+#include "MMTTrackSplinePointAnimatedStruct.generated.h"
 
 
 USTRUCT(BlueprintType)
-struct FTrackSplinePointAnimated
+struct FTrackSplinePointAnimatedStruct
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,7 @@ struct FTrackSplinePointAnimated
 	UMeshComponent* StaticMesh;
 
 	//Default constructor
-	FTrackSplinePointAnimated()
+	FTrackSplinePointAnimatedStruct()
 	{
 		SplinePointIndex = 0;
 		StaticMeshName = FString("none");

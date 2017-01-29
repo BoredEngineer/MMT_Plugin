@@ -3,11 +3,11 @@
 #pragma once
 
 #include "Engine/EngineTypes.h"
-#include "MMTPhysicalSurfaceRollingFrictionCoefficient.generated.h"
+#include "MMTPhysicalSurfaceRollingFrictionCoefficientStruct.generated.h"
 
 
 USTRUCT(BlueprintType)
-struct FPhysicalSurfaceRollingFrictionCoefficient
+struct FPhysicalSurfaceRollingFrictionCoefficientStruct
 {
 	GENERATED_BODY()
 
@@ -18,14 +18,14 @@ struct FPhysicalSurfaceRollingFrictionCoefficient
 	float RollingFrictionCoefficient;
 	
 	//default constructor
-	FPhysicalSurfaceRollingFrictionCoefficient()
+	FPhysicalSurfaceRollingFrictionCoefficientStruct()
 	{
 		PhysicalSurface = EPhysicalSurface::SurfaceType_Default;
 		RollingFrictionCoefficient = 0.02f;
 	}
 
 	//constructor with arguments
-	FPhysicalSurfaceRollingFrictionCoefficient(EPhysicalSurface Surface, float Coefficient)
+	FPhysicalSurfaceRollingFrictionCoefficientStruct(EPhysicalSurface Surface, float Coefficient)
 	{
 		PhysicalSurface = Surface;
 		RollingFrictionCoefficient = Coefficient;
