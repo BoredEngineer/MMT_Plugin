@@ -7,6 +7,7 @@
 #include "Engine/EngineTypes.h"
 #include "GameFramework/Pawn.h"
 #include "Components/SceneComponent.h"
+#include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Components/ActorComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Kismet/KismetMathLibrary.h"

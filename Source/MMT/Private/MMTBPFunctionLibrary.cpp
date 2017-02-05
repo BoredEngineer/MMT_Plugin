@@ -12,7 +12,7 @@ UMMTBPFunctionLibrary::UMMTBPFunctionLibrary(const FObjectInitializer& ObjectIni
 {
 }
 
-// Get Component transform from BodyInstance as its valid during physics sub-stepping
+// Get Component's world space transform from BodyInstance as its valid during physics sub-stepping
 FTransform UMMTBPFunctionLibrary::MMTGetTransformComponent(USceneComponent *Target, FName InSocketName = NAME_None) 
 {
 	//Gather stats

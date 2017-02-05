@@ -42,7 +42,7 @@ void UMMTFrictionComponent::BeginPlay()
 
 
 // Register collision information for future processing in friction component
-void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& NormalImpulseAtPoint, const FVector& ContactPointLocation, const FVector& ContactPointNormal, 
+void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& ImpactForceOrImpulseAtPoint, const bool TreatAsImpulse, const FVector& ContactPointLocation, const FVector& ContactPointNormal,
 													UPhysicalMaterial* PhysicalMaterial, const FVector InducedVelocity)
 {
 	//Gather stats
@@ -53,7 +53,8 @@ void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& NormalImpulseAt
 
 	NewContactPoint.IsPointActive = true;
 	NewContactPoint.InducedVelocity = InducedVelocity;
-	NewContactPoint.NormalImpulseAtPoint = NormalImpulseAtPoint;
+	NewContactPoint.ImpactForceOrImpulseAtPoint = ImpactForceOrImpulseAtPoint;
+	NewContactPoint.bTreatAsImpulse = TreatAsImpulse;
 	NewContactPoint.ContactPointLocation = ContactPointLocation;
 	NewContactPoint.ContactPointNormal = ContactPointNormal;
 	
@@ -134,7 +135,16 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 			FVector PointNormalCentered = ReferenceFrameTransform.InverseTransformVector(ContactPointsData[0].ContactPointNormal);
 			PointNormalCentered = ReferenceFrameTransform.TransformVector(FVector(PointNormalCentered.X, 0.0f, PointNormalCentered.Z));
 
-			FVector PreNormalForceCentered = ReferenceFrameTransform.InverseTransformVector(ContactPointsData[0].NormalImpulseAtPoint / DeltaTime);
+			FVector PreNormalForceCentered; 
+			//Should provide higher precision if DeltaTime fluctuates between frames
+			if (ContactPointsData[0].bTreatAsImpulse)
+			{
+				PreNormalForceCentered = ReferenceFrameTransform.InverseTransformVector(ContactPointsData[0].ImpactForceOrImpulseAtPoint / DeltaTime);
+			}
+			else
+			{
+				PreNormalForceCentered = ReferenceFrameTransform.InverseTransformVector(ContactPointsData[0].ImpactForceOrImpulseAtPoint);
+			}
 			PreNormalForceCentered = ReferenceFrameTransform.TransformVector(FVector(PreNormalForceCentered.X, 0.0f, PreNormalForceCentered.Z));
 
 			//Apply Friction calculations
@@ -203,7 +213,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	//Calculate static and kinetic friction coefficients, taking into account velocity direction and friction ellipse
 	float MuStatic;
 	float MuKinetic;
-	UMMTBPFunctionLibrary::GetMuFromFrictionElipse(RelativeVelocityAtPoint.GetSafeNormal(), ReferenceFrameTransform.TransformVector(FVector(1.0f, 1.0f, 1.0f)),
+	UMMTBPFunctionLibrary::GetMuFromFrictionElipse(RelativeVelocityAtPoint.GetSafeNormal(), ReferenceFrameTransform.TransformVector(FVector::ForwardVector),
 													MuXStatic, MuXKinetic, MuYStatic, MuYKinetic, MuStatic, MuKinetic);
 
 	//Calculate "stopping force" which is amount of force necessary to completely remove velocity of the object

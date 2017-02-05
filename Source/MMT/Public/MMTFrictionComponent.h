@@ -52,7 +52,7 @@ public:
 	*	@param InducedVelocity		Optional. Induced velocity is the velocity of the surface or an object where contact occurred. For example, for tank being transported on the train cart, induced velocity would be velocity of the cart.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
-	void RegisterFrictionPoint(const FVector& NormalImpulseAtPoint, const FVector& ContactPointLocation, const FVector& ContactPointNormal, UPhysicalMaterial* PhysicalMaterial,
+	void RegisterFrictionPoint(const FVector& ImpactForceOrImpulseAtPoint, const bool TreatAsImpulse, const FVector& ContactPointLocation, const FVector& ContactPointNormal, UPhysicalMaterial* PhysicalMaterial,
 								const FVector InducedVelocity);
 
 	/**

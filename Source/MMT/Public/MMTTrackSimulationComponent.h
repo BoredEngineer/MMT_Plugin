@@ -4,7 +4,8 @@
 
 #include "Components/SceneComponent.h"
 #include "MMTTrackSplinePointAnimatedStruct.h"
-#include "MMTTrackSuspensionStackStruct.h"
+#include "MMTSuspensionStackStruct.h"
+#include "MMTSuspensionStack.h"
 #include "MMTTrackSprocketAndIdlerStruct.h"
 #include "MMTTrackSimulationComponent.generated.h"
 
@@ -21,12 +22,14 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
+	UPROPERTY(Instanced, EditAnywhere, BlueprintReadWrite, Category = "Suspension", meta = (ToolTip = "Array of suspension stacks and road-wheels"))
+	TArray<UMMTSuspensionStack*> SuspensionStackConfigurations;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension", meta = (ToolTip = "Array of suspension stacks and road-wheels"))
-		TArray<FTrackSuspensionStackStruct> SuspensionStacks;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension", Meta = (MakeEditWidget = true))
+	TArray<FVector> SuspnesionStackPositions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension", meta = (ToolTip = "Array of sprockets and idlers"))
-		TArray<FTrackSprocketAndIdlerStruct> SprocketsAndIdlers;
+	TArray<FTrackSprocketAndIdlerStruct> SprocketsAndIdlers;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation (optional)", meta = (ToolTip = "Will use Instanced Static Mesh component to visualize treads of the track. Otherwise user can use animated UV material and skinned mesh for this purpose"))
