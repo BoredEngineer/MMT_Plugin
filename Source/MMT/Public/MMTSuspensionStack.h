@@ -26,16 +26,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension Stack Settings", meta = (ToolTip = "Suspension stack settings"))
 		bool TryAsyncTraceMode = false;
 	
-	//Set reference to parent object. Suspension Stack is typically a sub-object of other components and can't refer to it's parent on it's own.
-	void SetParentComponentReference(USceneComponent* Parent);
-
 	/**
 	*	Runs calculations of suspension stack, applies spring force to sprung component and calculates new position of the road-wheels
 	*	@param DeltaTime				Delta time
 	*	@return	WheelLocalPosition		Position of the road-wheel in local coordinate system of the actor, NOT a relative position to component
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
-		void PhysicsUpdate(const float& DeltaTime, FVector& WheelLocalPosition);
+		void PhysicsUpdate(const float& DeltaTime);
 
 	/**
 	*	Initializes class logic, finds references and pre-calculates parameters. Expected to be called from BeginPlay only
@@ -77,6 +74,52 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
 		FVector GetWheelHubPosition();
 
+	/**
+	*	Set reference of sprung mesh component manually
+	*	@param SprungMeshComponentRef	Pointer to sprung mesh component, usually root physics component
+	*	@return		Returns true if reference is valid and was set
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		bool SetSprungComponentReference(UMeshComponent* SprungMeshComponentRef);
+
+	/**
+	*	Set reference of mesh component used for sweeps
+	*	@param SweepShapeMeshComponentRef	Pointer to mesh component used for sweeps, usually a physical wheel component
+	*	@return		Returns true if reference is valid and was set
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		bool SetSweepShapeComponentReference(UMeshComponent* SweepShapeMeshComponentRef);
+
+	/**
+	*	Set stiffness of the spring
+	*	@param NewSpringStiffness	Stiffness of the spring
+	*	@param bUpdateAllParameters	Will refresh all precomputed parameters. If you are changing multiple suspension settings at a time, consider setting this flag to true only on last setter to save some performance
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		void SetSpringStiffness(float NewSpringStiffness=0.0f);
+
+	/**
+	*	Set new spring offsets
+	*	@param NewSpringStiffness	Stiffness of the spring
+	*	@param bUpdateAllParameters	Will refresh all precomputed parameters. If you are changing multiple suspension settings at a time, consider setting this flag to true only on last setter to save some performance
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		void SetSpringOffsets(FVector SpringTopOffset = FVector::ZeroVector, FVector SpringBottomOffset = FVector::ZeroVector, bool bUpdateAllParameters=true);
+
+	/**
+	*	Sets scale of the final suspension force (spring + damping), useful for active suspension
+	*	@param NewSpringForceScale	New scale value of final suspension force
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		void SetSuspensionForceScale(float NewSuspensionForceScale = 1.0f);
+
+	/**
+	*	Get current suspension force scale parameter
+	*	@return		Returns current suspension force scale parameter
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		float GetSuspensionForceScale();
+
 private:
 	
 	UPROPERTY()
@@ -84,7 +127,11 @@ private:
 	UPROPERTY()
 		UMeshComponent* SprungMeshComponent;
 	UPROPERTY()
+		bool	bSprungMeshComponentSetManually = false;
+	UPROPERTY()
 		UMeshComponent* SweepShapeMeshComponent;
+	UPROPERTY()
+		bool	bSweepShapeMeshComponentSetManually = false;
 	UPROPERTY()
 		FString ComponentName = FString("ComponentRefereneFailed");
 	UPROPERTY()
@@ -92,9 +139,9 @@ private:
 	UPROPERTY()
 		float SpringMaxLenght;
 	UPROPERTY()
-		FVector SpringOffsetTop;
+		FVector SpringOffsetTopAdjusted;
 	UPROPERTY()
-		FVector SpringOffsetBottom;
+		FVector SpringOffsetBottomAdjusted;
 	UPROPERTY()
 		FTransform ReferenceFrameTransform;
 	UPROPERTY()
@@ -102,15 +149,17 @@ private:
 	UPROPERTY()
 		bool bWarningMessageDisplayed = false;
 	UPROPERTY()
-		FVector WheelHubPositionLS;
+		FVector WheelHubPositionLS = FVector::ZeroVector;
 	UPROPERTY()
 		float PreviousSpringLenght;
 	UPROPERTY()
-		float SuspensionForceMagnitude;
+		float SuspensionForceMagnitude = 0.0f;
 	UPROPERTY()
-		FVector SuspensionForceLS;
+		FVector SuspensionForceLS = FVector::ZeroVector;
 	UPROPERTY()
-		FVector SuspensionForceWS;
+		FVector SuspensionForceWS = FVector::ZeroVector;
+	UPROPERTY()
+		float SuspensionForceScale = 1.0f;
 
 	//Line trace specific
 	FCollisionQueryParams LineTraceQueryParameters;
@@ -122,15 +171,15 @@ private:
 	
 	//Variables for recording collision of the wheel and passing data further to friction processing
 	UPROPERTY()
-		bool bContactPointActive;
+		bool bContactPointActive = false;
 	UPROPERTY()
-		FVector ContactInducedVelocity;
+		FVector ContactInducedVelocity = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactForceAtPoint;
+		FVector ContactForceAtPoint = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactPointLocation;
+		FVector ContactPointLocation = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactPointNormal;
+		FVector ContactPointNormal = FVector::UpVector;
 	UPROPERTY()
 		UPhysicalMaterial* ContactPhysicalMaterial;
 	

@@ -5,10 +5,10 @@
 UENUM(BlueprintType)
 enum class ESuspensionSimMode : uint8
 {
-	// RayCheck - is simplest and fastest but works correctly only on relatively smooth terrain. 
-	RayCheck 	UMETA(DisplayName = "RayCheck"),
+	// Ray Check - is simplest and fastest but works correctly only on relatively smooth terrain. 
+	RayCheck 	UMETA(DisplayName = "Ray Check"),
+	// Sphere Check - wheels are approximated with a sphere. This improves traverse of the obstacles over RayCheck and still cheaper than Shape Sweep, although still not as reliable as Shape Sweep
+	SphereCheck	UMETA(DisplayName = "Sphere Check"),
 	// Shape Sweep - works with any type of terrain and obstacles but more expensive than RayCheck. 
-	ShapeSweep	UMETA(DisplayName = "Shape Sweep"),
-	// Tread Simulation - road - wheels will collide with dynamic track surface, provides the most accurate simulation compared to other modes(requires track simulation component to work)
-	TreadSim	UMETA(DisplayName = "Tread Simulation")
+	ShapeSweep	UMETA(DisplayName = "Shape Sweep")
 };

@@ -5,13 +5,14 @@
 
 
 // Sets default values for this component's properties
-UMMTSuspensionStackComponent::UMMTSuspensionStackComponent()
+UMMTSuspensionStackComponent::UMMTSuspensionStackComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
-	SuspensionStack = CreateDefaultSubobject<UMMTSuspensionStack, UMMTSuspensionStack>(TEXT("SuspensionStack"));
+	//SuspensionStack = ObjectInitializer.CreateDefaultSubobject<UMMTSuspensionStack>(this, TEXT("SuspensionStack"));
+	SuspensionStack = CreateDefaultSubobject<UMMTSuspensionStack>(TEXT("SuspensionStack"));
 }
 
 
@@ -20,11 +21,8 @@ void UMMTSuspensionStackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Pass own reference to Suspension Stack as it's not capable of getting it's parent on its own
-	SuspensionStack->SetParentComponentReference(this);
 	//Initialize suspension stack
 	SuspensionStack->Initialize();
-	
 }
 
 

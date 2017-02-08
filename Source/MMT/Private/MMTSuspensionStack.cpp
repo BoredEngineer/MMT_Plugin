@@ -15,28 +15,29 @@ UMMTSuspensionStack::UMMTSuspensionStack()
 
 void UMMTSuspensionStack::Initialize()
 {
-	GetNamesForComponentAndParent();
-	GetNamedComponentsReference();
-	PreCalculateParameters();
-
-	//Line Trace default query parameters, called from here to have valid reference to parent
-	LineTraceQueryParameters.bTraceAsyncScene = false;
-	LineTraceQueryParameters.bTraceComplex = false;
-	LineTraceQueryParameters.bReturnFaceIndex = false;
-	LineTraceQueryParameters.bReturnPhysicalMaterial = true;
-	LineTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
-}
-
-void UMMTSuspensionStack::SetParentComponentReference(USceneComponent* Parent)
-{
-	if (!IsValid(Parent))
+	USceneComponent* TryParent = CastChecked<USceneComponent>(GetOuter());
+	if (IsValid(TryParent))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%Inner Suspension Stack object failed to receive correct parent reference")));
-		UE_LOG(LogTemp, Warning, TEXT("Inner Suspension Stack object failed to receive correct parent reference"));
+		ParentComponentRef = TryParent;
+
+		GetNamesForComponentAndParent();
+		GetNamedComponentsReference();
+		PreCalculateParameters();
+
+		//Line Trace default query parameters, called from here to have valid reference to parent
+		LineTraceQueryParameters.bTraceAsyncScene = false;
+		LineTraceQueryParameters.bTraceComplex = false;
+		LineTraceQueryParameters.bReturnFaceIndex = false;
+		LineTraceQueryParameters.bReturnPhysicalMaterial = true;
+		LineTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
 	}
 	else
 	{
-		ParentComponentRef = Parent;
+		//Disable component to avoid potential null point reference
+		SuspensionSettings.bDisabled = true;
+
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%Inner Suspension Stack object failed to receive correct parent reference")));
+		UE_LOG(LogTemp, Warning, TEXT("Inner Suspension Stack object failed to receive correct parent reference"));
 	}
 }
 
@@ -52,24 +53,27 @@ void UMMTSuspensionStack::GetNamesForComponentAndParent()
 void UMMTSuspensionStack::GetNamedComponentsReference()
 {
 	//Sprung mesh reference
-	if (SuspensionSettings.SprungComponentName != FString("none"))
+	if (!bSprungMeshComponentSetManually)
 	{
-		SprungMeshComponent = UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(ParentComponentRef, SuspensionSettings.SprungComponentName);
-		if (!IsValid(SprungMeshComponent))
+		if (SuspensionSettings.SprungComponentName != FString("none"))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName));
-			UE_LOG(LogTemp, Warning, TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName);
+			SprungMeshComponent = UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(ParentComponentRef, SuspensionSettings.SprungComponentName);
+			if (!IsValid(SprungMeshComponent))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName));
+				UE_LOG(LogTemp, Warning, TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName);
+			}
 		}
-	}
-	else
-	{
-		SprungMeshComponent = NULL;
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component's SprungComponentName property shouldn't be 'none', set proper name for effected component"), *ComponentsParentName, *ComponentName));
-		UE_LOG(LogTemp, Warning, TEXT("%s->%s component's EffectedComponentName property shouldn't be 'none', set proper name for effected component"), *ComponentsParentName, *ComponentName);
+		else
+		{
+			SprungMeshComponent = NULL;
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component's SprungComponentName property shouldn't be 'none', set proper name for effected component"), *ComponentsParentName, *ComponentName));
+			UE_LOG(LogTemp, Warning, TEXT("%s->%s component's EffectedComponentName property shouldn't be 'none', set proper name for effected component"), *ComponentsParentName, *ComponentName);
+		}
 	}
 
 	//ShapeSweep mesh reference
-	if (SuspensionSettings.bCanShapeSweep)
+	if (SuspensionSettings.bCanShapeSweep & !bSweepShapeMeshComponentSetManually)
 	{
 		if (SuspensionSettings.SweepShapeComponentName != FString("none"))
 		{
@@ -92,37 +96,41 @@ void UMMTSuspensionStack::GetNamedComponentsReference()
 //Recalculate parameters to save performance
 void UMMTSuspensionStack::PreCalculateParameters() 
 {
-	SpringMaxLenght = FVector(SuspensionSettings.SpringTopOffset - SuspensionSettings.SpringBottomOffset).Size();
-
 	//Shift spring offsets if custom position of the stack is used
-	SpringOffsetTop = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringTopOffset : SuspensionSettings.SpringTopOffset;
-	SpringOffsetBottom = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringBottomOffset : SuspensionSettings.SpringBottomOffset;
+	SpringOffsetTopAdjusted = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringTopOffset : SuspensionSettings.SpringTopOffset;
+	SpringOffsetBottomAdjusted = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringBottomOffset : SuspensionSettings.SpringBottomOffset;
 
 	//Calculate spring direction in local coordinate system
-	SpringDirectionLocal = SpringOffsetBottom - SpringOffsetTop;
+	SpringDirectionLocal = SpringOffsetBottomAdjusted - SpringOffsetTopAdjusted;
+	SpringMaxLenght = SpringDirectionLocal.Size();
+	
+	//Normalize vector and check if normalization was successful
 	if (!SpringDirectionLocal.Normalize())
 	{
 		SpringDirectionLocal = FVector::UpVector;
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s distance between Top and Bottom offsets of the spring shouldn't be zero"), *ComponentsParentName, *ComponentName));
 		UE_LOG(LogTemp, Warning, TEXT("%s->%s distance between Top and Bottom offsets of the spring shouldn't be zero"), *ComponentsParentName, *ComponentName);
 	}
-
+	
 	//Calculate line trace points in local space, taking into account road wheel radius and tread thickness
-	LineTraceOffsetTopLS = SpringOffsetTop - SpringDirectionLocal * SuspensionSettings.RoadWheelRadius;
-	LineTraceOffsetBottomLS = SpringOffsetBottom + SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
+	LineTraceOffsetTopLS = SpringOffsetTopAdjusted - SpringDirectionLocal * SuspensionSettings.RoadWheelRadius;
+	LineTraceOffsetBottomLS = SpringOffsetBottomAdjusted + SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
 }
 
 
 //Updates position of the road-wheel, calculates and applies spring force to sprung component
-void UMMTSuspensionStack::PhysicsUpdate(const float& DeltaTime, FVector& WheelLocalPosition)
+void UMMTSuspensionStack::PhysicsUpdate(const float& DeltaTime)
 {
-	//Update world space transform of parent component
-	ReferenceFrameTransform = UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
+	if (!SuspensionSettings.bDisabled)
+	{
 
-	UpdateWheelHubPosition();
+		//Update world space transform of parent component
+		ReferenceFrameTransform = UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
 
-	CalculateAndApplySuspensionForce(DeltaTime);
+		UpdateWheelHubPosition();
 
+		CalculateAndApplySuspensionForce(DeltaTime);
+	}
 }
 
 
@@ -137,7 +145,9 @@ void UMMTSuspensionStack::LineTraceForContact()
 
 	//Do line trace
 	bContactPointActive = ParentComponentRef->GetWorld()->LineTraceSingleByChannel(LineTraceOutHit, LineTraceStart, LineTraceEnd, SuspensionSettings.RayCheckTraceChannel,
-							LineTraceQueryParameters, LineTraceResponseParameters);
+		LineTraceQueryParameters, LineTraceResponseParameters);
+		//ParentComponentRef->GetWorld()->LineTraceSingleByChannel(LineTraceOutHit, LineTraceStart, LineTraceEnd, SuspensionSettings.RayCheckTraceChannel,
+			//				LineTraceQueryParameters, LineTraceResponseParameters);
 	
 	//Dirty but assumption is that contact information is never used if bContactPointActive is false.
 	if (bContactPointActive)
@@ -219,7 +229,7 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 		else
 		{
 			//If trace failed wheel hub is assumed to be in lowest possible position of suspension
-			WheelHubPositionLS = SpringOffsetBottom;
+			WheelHubPositionLS = SpringOffsetBottomAdjusted;
 		}
 
 		if (SuspensionSettings.bEnableDebugMode)
@@ -229,26 +239,28 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 	}
 	else
 	{
-		if (SuspensionSettings.SimulationMode == ESuspensionSimMode::ShapeSweep)
+		
+		if (SuspensionSettings.SimulationMode == ESuspensionSimMode::SphereCheck)
 		{
 			//DoOnce([]() { UE_LOG(...); });
 			if (!bWarningMessageDisplayed)
 			{
 				bWarningMessageDisplayed = true;
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Shape Sweep simulation mode is not implemented"), *ComponentsParentName, *ComponentName));
-				UE_LOG(LogTemp, Warning, TEXT("%s->%s Shape Sweep simulation mode is not implemented"), *ComponentsParentName, *ComponentName);
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Sphere Check mode is not implemented"), *ComponentsParentName, *ComponentName));
+				UE_LOG(LogTemp, Warning, TEXT("%s->%s Sphere Check mode is not implemented"), *ComponentsParentName, *ComponentName);
 			}
 		}
 		else
 		{
-			if (SuspensionSettings.SimulationMode == ESuspensionSimMode::TreadSim)
+			if (SuspensionSettings.SimulationMode == ESuspensionSimMode::ShapeSweep)
 			{
 				if (!bWarningMessageDisplayed)
 				{
 					bWarningMessageDisplayed = true;
-					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Tread Simulation mode is not implemented"), *ComponentsParentName, *ComponentName));
-					UE_LOG(LogTemp, Warning, TEXT("%s->%s Tread Simulation mode is not implemented"), *ComponentsParentName, *ComponentName);
+					GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Shape Sweep simulation mode is not implemented"), *ComponentsParentName, *ComponentName));
+					UE_LOG(LogTemp, Warning, TEXT("%s->%s Shape Sweep simulation mode is not implemented"), *ComponentsParentName, *ComponentName);
 				}
+
 			}
 		}
 	}
@@ -258,7 +270,7 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTime)
 {
 	//Calculate spring compression
-	float NewSpringLenght = FVector(SpringOffsetTop - WheelHubPositionLS).Size();
+	float NewSpringLenght = FVector(SpringOffsetTopAdjusted - WheelHubPositionLS).Size();
 	float SpringDelta = FMath::Clamp(SpringMaxLenght - NewSpringLenght, 0.0f, SpringMaxLenght);
 
 	float CompressionRatio = FMath::Clamp((NewSpringLenght - 1.0f) / SpringMaxLenght, 0.0f, 1.0f);
@@ -280,7 +292,7 @@ void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTim
 
 	//Limit magnitude of suspension force
 	//SuspensionForceMagnitude = FMath::Clamp(SpringForce - Dampening, 0.0f, SuspensionSettings.SpringStiffness * SuspensionSettings.SpringMaxOutputRatio);
-	SuspensionForceMagnitude = SpringForce - SpringDamping;
+	SuspensionForceMagnitude = (SpringForce - SpringDamping) * SuspensionForceScale;
 
 	SuspensionForceLS = SuspensionForceMagnitude * (-1) * SpringDirectionLocal;
 
@@ -337,7 +349,67 @@ void UMMTSuspensionStack::GetSuspensionForce(float &Magnitude, FVector& WorldSpa
 	SurfaceVelocity = ContactInducedVelocity;
 }
 
-	FVector UMMTSuspensionStack::GetWheelHubPosition()
+FVector UMMTSuspensionStack::GetWheelHubPosition()
+{
+	return WheelHubPositionLS;
+}
+
+
+bool UMMTSuspensionStack::SetSprungComponentReference(UMeshComponent* SprungMeshComponentRef)
+{
+	if (IsValid(SprungMeshComponentRef))
 	{
-		return WheelHubPositionLS;
+		SprungMeshComponent = SprungMeshComponentRef;
+		bSprungMeshComponentSetManually = true;
+		return true;
 	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s manual setting of sprung mesh component failed"), *ComponentsParentName, *ComponentName));
+		UE_LOG(LogTemp, Warning, TEXT("%s->%s manual setting of sprung mesh component failed"), *ComponentsParentName, *ComponentName);
+		return false;
+	}
+}
+
+
+bool UMMTSuspensionStack::SetSweepShapeComponentReference(UMeshComponent* SweepShapeMeshComponentRef)
+{
+	if (IsValid(SweepShapeMeshComponentRef))
+	{
+		SweepShapeMeshComponent = SweepShapeMeshComponentRef;
+		bSweepShapeMeshComponentSetManually = true;
+		return true;
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s manual setting of sweep shape mesh component failed"), *ComponentsParentName, *ComponentName));
+		UE_LOG(LogTemp, Warning, TEXT("%s->%s manual setting of sweep shape mesh component failed"), *ComponentsParentName, *ComponentName);
+		return false;
+	}
+}
+
+void UMMTSuspensionStack::SetSpringStiffness(float NewSpringStiffness)
+{
+	SuspensionSettings.SpringStiffness = NewSpringStiffness;
+}
+
+void UMMTSuspensionStack::SetSpringOffsets(FVector SpringTopOffset, FVector SpringBottomOffset, bool bUpdateAllParameters)
+{
+	SuspensionSettings.SpringTopOffset = SpringTopOffset;
+	SuspensionSettings.SpringBottomOffset = SpringBottomOffset;
+
+	if (bUpdateAllParameters)
+	{
+		PreCalculateParameters();
+	}
+}
+
+void UMMTSuspensionStack::SetSuspensionForceScale(float NewSuspensionForceScale)
+{
+	SuspensionForceScale = NewSuspensionForceScale;
+}
+
+float UMMTSuspensionStack::GetSuspensionForceScale()
+{
+	return SuspensionForceScale;
+}

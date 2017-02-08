@@ -202,6 +202,8 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	RelativeVelocityAtPoint = (PrevRelativeVelocityAtPoint + RelativeVelocityAtPoint) * 0.5;
 	PrevRelativeVelocityAtPoint = RelativeVelocityAtPoint;
 	
+	/*
+	* This piece of code, leads to small forces, like parasitic forces of suspension to sleep in. Need to build a different solution for static case, like based on a constraint for example
 	// early exit if velocity is too low to consider as vehicle most likely standing still
 	if (RelativeVelocityAtPoint.Size() < 1.0f)
 	{
@@ -209,6 +211,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 		RollingFrictionForce = FVector::ZeroVector;
 		return;
 	}
+	*/
 
 	//Calculate static and kinetic friction coefficients, taking into account velocity direction and friction ellipse
 	float MuStatic;

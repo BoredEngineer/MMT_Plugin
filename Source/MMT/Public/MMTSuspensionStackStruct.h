@@ -14,6 +14,9 @@ struct FSuspensionStackStruct
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Disables component from doing physics calculations and applying forces, useful for debugging."))
+		bool bDisabled;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Suspension simulation mode in which suspension stack starts by default. Simulation mode can be later changed in real-time (useful for LODs). RayCheck - is simplest and fastest but works correctly only on relatively smooth terrain. Shape Sweep - works with any type of terrain and obstacles but more expensive than RayCheck. Tread Simulation - road-wheels will collide with dynamic track surface, provides the most accurate simulation compared to other modes (requires track simulation component to work)"))
 		ESuspensionSimMode SimulationMode;
 
@@ -54,7 +57,6 @@ struct FSuspensionStackStruct
 		bool bEnableDebugMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RayCheck mode", meta = (ToolTip = "Default channel for suspension tracing in raycheck mode"))
-		//TEnumAsByte <ETraceTypeQuery> RayCheckTraceChannel;
 		TEnumAsByte <ECollisionChannel> RayCheckTraceChannel;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Shape Sweep mode", meta = (ToolTip = "Can use shape sweep to find suspension compression"))
@@ -73,6 +75,7 @@ struct FSuspensionStackStruct
 	//Default constructor
 	FSuspensionStackStruct()
 	{
+		bDisabled = false;
 		SimulationMode = ESuspensionSimMode::RayCheck;
 		SprungComponentName = FString("Root");
 		bUseCustomPosition = false;
@@ -86,7 +89,6 @@ struct FSuspensionStackStruct
 		SpringDampening = 10000.0f;
 		bGetContactBodyVelocity = false;
 		bEnableDebugMode = false;
-		//RayCheckTraceChannel = ETraceTypeQuery::TraceTypeQuery1;
 		RayCheckTraceChannel = ECC_Visibility;
 		bCanShapeSweep = false;
 		SweepShapeComponentName = FString("none");

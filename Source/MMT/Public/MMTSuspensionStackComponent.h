@@ -14,7 +14,7 @@ class MMT_API UMMTSuspensionStackComponent : public USceneComponent
 
 public:	
 	// Sets default values for this component's properties
-	UMMTSuspensionStackComponent();
+	UMMTSuspensionStackComponent(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(VisibleAnywhere, Instanced, BlueprintReadWrite)
 	UMMTSuspensionStack* SuspensionStack;
