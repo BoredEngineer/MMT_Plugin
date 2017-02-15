@@ -37,6 +37,9 @@ void UMMTFrictionComponent::BeginPlay()
 	// Get references to named components
 	GetComponentsReference();
 
+	//Clear up contact data array just in case
+	ContactPointsData.Empty();
+
 	Super::BeginPlay();
 }
 
@@ -243,6 +246,9 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 			DrawDebugString(GetWorld(), ContactPointLocation, FString("Static Friction"), nullptr, FColor::Red, 0.0f, false);
 		}
 	}
+	
+	//Get component name
+	//DrawDebugString(GetWorld(), ContactPointLocation+FVector(0.0f,0.0f,20.0f), FString::Printf(TEXT("FricComp %s"), *GetName()), nullptr, FColor::White, 0.0f, false);
 
 	//Apply friction force
 	UMMTBPFunctionLibrary::MMTAddForceAtLocationComponent(EffectedComponentMesh, ApplicationForce, ContactPointLocation);

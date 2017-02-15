@@ -121,7 +121,6 @@ public:
 		float GetSuspensionForceScale();
 
 private:
-	
 	UPROPERTY()
 		USceneComponent* ParentComponentRef;
 	UPROPERTY()
@@ -173,13 +172,13 @@ private:
 	UPROPERTY()
 		bool bContactPointActive = false;
 	UPROPERTY()
-		FVector ContactInducedVelocity = FVector::ZeroVector;
+		FVector ContactInducedVelocity;
 	UPROPERTY()
-		FVector ContactForceAtPoint = FVector::ZeroVector;
+		FVector ContactForceAtPoint;
 	UPROPERTY()
-		FVector ContactPointLocation = FVector::ZeroVector;
+		FVector ContactPointLocation;
 	UPROPERTY()
-		FVector ContactPointNormal = FVector::UpVector;
+		FVector ContactPointNormal;
 	UPROPERTY()
 		UPhysicalMaterial* ContactPhysicalMaterial;
 	
@@ -201,6 +200,8 @@ private:
 
 	//Calculate suspension force and apply to effected body
 	void CalculateAndApplySuspensionForce(const float& DeltaTime);
+
+	void GetDefaultWheelPosition();
 
 	//Draw simple debug lines for suspension traces
 	static void DrawDebugLineTrace(bool bBlockingHit, FVector Start, FVector End, FVector HitPoint, UWorld *WorldRef);

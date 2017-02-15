@@ -9,12 +9,30 @@
 UMMTSuspensionStack::UMMTSuspensionStack()
 {
 	//Bind async trace delegate
-	//TraceDelegate.BindRaw(this, &UMMTSuspensionStack::AsyncTraceDone);
-	TraceDelegate.BindUObject(this, &UMMTSuspensionStack::AsyncTraceDone);
+	//TraceDelegate.BindUObject(this, &UMMTSuspensionStack::AsyncTraceDone);
 }
 
 void UMMTSuspensionStack::Initialize()
 {
+	//Initialize variables again, just in case!
+	bContactPointActive = false;
+	ContactInducedVelocity = FVector::ZeroVector;
+	ContactForceAtPoint = FVector::ZeroVector;
+	ContactPointLocation = FVector::ZeroVector;
+	ContactPointNormal = FVector::UpVector;
+	bSprungMeshComponentSetManually = false;
+	bSweepShapeMeshComponentSetManually = false;
+	ComponentName = FString("ComponentRefereneFailed");
+	ComponentsParentName = FString("ParentRefereneFailed");
+	bWarningMessageDisplayed = false;
+	WheelHubPositionLS = FVector::ZeroVector;
+	PreviousSpringLenght = 1.0f;
+	SuspensionForceMagnitude = 0.0f;
+	SuspensionForceLS = FVector::ZeroVector;
+	SuspensionForceWS = FVector::ZeroVector;
+	SuspensionForceScale = 1.0f;
+	
+
 	USceneComponent* TryParent = CastChecked<USceneComponent>(GetOuter());
 	if (IsValid(TryParent))
 	{
@@ -23,6 +41,7 @@ void UMMTSuspensionStack::Initialize()
 		GetNamesForComponentAndParent();
 		GetNamedComponentsReference();
 		PreCalculateParameters();
+		GetDefaultWheelPosition();
 
 		//Line Trace default query parameters, called from here to have valid reference to parent
 		LineTraceQueryParameters.bTraceAsyncScene = false;
@@ -39,6 +58,8 @@ void UMMTSuspensionStack::Initialize()
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%Inner Suspension Stack object failed to receive correct parent reference")));
 		UE_LOG(LogTemp, Warning, TEXT("Inner Suspension Stack object failed to receive correct parent reference"));
 	}
+
+	bContactPointActive = false;
 }
 
 
@@ -123,7 +144,6 @@ void UMMTSuspensionStack::PhysicsUpdate(const float& DeltaTime)
 {
 	if (!SuspensionSettings.bDisabled)
 	{
-
 		//Update world space transform of parent component
 		ReferenceFrameTransform = UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
 
@@ -413,3 +433,14 @@ float UMMTSuspensionStack::GetSuspensionForceScale()
 {
 	return SuspensionForceScale;
 }
+
+
+void UMMTSuspensionStack::GetDefaultWheelPosition()
+{
+	if (IsValid(SweepShapeMeshComponent))
+	{
+		WheelHubPositionLS = SweepShapeMeshComponent->GetRelativeTransform().GetLocation();
+		//WheelHubPositionLS = ReferenceFrameTransform.InverseTransformPosition(SweepShapeMeshComponent->GetComponentTransform().GetLocation());
+	}
+}
+
