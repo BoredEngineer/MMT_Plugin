@@ -5,6 +5,7 @@
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/SplineComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsSettings.h"
 #include "MMTBPFunctionLibrary.generated.h"
 
 UCLASS()
@@ -112,6 +113,34 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Friction Coefficients from Friction Ellipse"), Category = "MMT Utility")
 	static void GetMuFromFrictionElipse(const FVector& VelocityDirectionNormalizedWS, const FVector& ForwardVectorWS, const float MuXStatic, const float MuXKinetic, const float MuYStatic, const float MuYKinetic, 
 										float& MuStatic, float& MuKinetic); //output variables
+
+	//Get enum as readable string
+	template<typename TEnum>
+	static FORCEINLINE FString GetEnumValueAsString(const FString& Name, TEnum Value)
+	{
+		const UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, *Name, true);
+		if (!enumPtr)
+		{
+			return FString("Invalid Enum");
+		}
+
+		return enumPtr->GetEnumName((int32)Value);
+	}
+
+	//Get readable name of physical surface
+	static FORCEINLINE FString GetPhysicalSurfaceRedableName(const EPhysicalSurface Surface)
+	{
+		TArray<FPhysicalSurfaceName> PhysSurfaces = UPhysicsSettings::Get()->PhysicalSurfaces;
+		
+		for (int32 i = 0; i < PhysSurfaces.Num(); i++)
+		{
+			if (PhysSurfaces[i].Type == Surface)
+			{
+				return  PhysSurfaces[i].Name.ToString();
+			}
+		}
+		return FString("Physical Surface name not found");
+	}
 
 
 private:

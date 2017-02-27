@@ -16,3 +16,14 @@ struct FSecondaryTickFunction : public FTickFunction
 
 	MMT_API virtual FString DiagnosticMessage() override;
 };
+
+
+//necessary fix for 4.15 compliance
+template<>
+struct TStructOpsTypeTraits<FSecondaryTickFunction> : public TStructOpsTypeTraitsBase
+{
+	enum
+	{
+		WithCopy = false
+	};
+};

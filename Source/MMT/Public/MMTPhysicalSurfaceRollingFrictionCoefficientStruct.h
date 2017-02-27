@@ -17,11 +17,11 @@ struct FPhysicalSurfaceRollingFrictionCoefficientStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MMT Friction", meta = (ToolTip = "Higher rolling friction coefficient leads to higher rolling friction force"))
 	float RollingFrictionCoefficient;
 	
-	//default constructor
+	//Default rolling friction is set to zero as to avoid potential confusion in regards to drive train tuning or tuning of friction coefficients
 	FPhysicalSurfaceRollingFrictionCoefficientStruct()
 	{
 		PhysicalSurface = EPhysicalSurface::SurfaceType_Default;
-		RollingFrictionCoefficient = 0.02f;
+		RollingFrictionCoefficient = 0.0f;
 	}
 
 	//constructor with arguments

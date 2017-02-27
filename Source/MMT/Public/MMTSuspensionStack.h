@@ -16,16 +16,9 @@ public:
 	// Sets default values for this component's properties
 	UMMTSuspensionStack();
 
-	//Delegate for async trace
-	FTraceDelegate TraceDelegate;
-	void AsyncTraceDone(const FTraceHandle& TraceHandle, FTraceDatum & TraceData);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension Stack Settings", meta = (ToolTip = "Suspension stack settings"))
 		FSuspensionStackStruct SuspensionSettings;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension Stack Settings", meta = (ToolTip = "Suspension stack settings"))
-		bool TryAsyncTraceMode = false;
-	
 	/**
 	*	Runs calculations of suspension stack, applies spring force to sprung component and calculates new position of the road-wheels
 	*	@param DeltaTime				Delta time
@@ -72,7 +65,7 @@ public:
 	*	@return		Wheel hub position in local space
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
-		FVector GetWheelHubPosition();
+		FVector GetWheelHubPosition(bool bInWorldSpace=false);
 
 	/**
 	*	Set reference of sprung mesh component manually
@@ -208,4 +201,10 @@ private:
 
 	//DoOnce for debug messages
 	template<typename CallbackType> void DoOnce(const CallbackType& Callback) { static bool bDone = false; if (!bDone) { Callback(); bDone = true; } };
+
+	//Experimental delegate for async trace
+	FTraceDelegate TraceDelegate;
+	void AsyncTraceDone(const FTraceHandle& TraceHandle, FTraceDatum & TraceData);
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Suspension Stack Settings", meta = (ToolTip = "Suspension stack settings"))
+	bool TryAsyncTraceMode = false;
 };

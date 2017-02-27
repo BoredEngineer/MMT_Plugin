@@ -134,7 +134,7 @@ void UMMTSuspensionStack::PreCalculateParameters()
 	}
 	
 	//Calculate line trace points in local space, taking into account road wheel radius and tread thickness
-	LineTraceOffsetTopLS = SpringOffsetTopAdjusted - SpringDirectionLocal * SuspensionSettings.RoadWheelRadius;
+	LineTraceOffsetTopLS = SpringOffsetTopAdjusted + SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
 	LineTraceOffsetBottomLS = SpringOffsetBottomAdjusted + SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
 }
 
@@ -243,8 +243,7 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 		if (bContactPointActive)
 		{
 			//Shift traced contact point by the radius of the wheel and thickness of track
-			WheelHubPositionLS = ReferenceFrameTransform.InverseTransformPosition(ContactPointLocation) -
-				SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
+			WheelHubPositionLS = ReferenceFrameTransform.InverseTransformPosition(ContactPointLocation) - SpringDirectionLocal * (SuspensionSettings.RoadWheelRadius + SuspensionSettings.TrackThickness);
 		}
 		else
 		{
@@ -292,6 +291,11 @@ void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTim
 	//Calculate spring compression
 	float NewSpringLenght = FVector(SpringOffsetTopAdjusted - WheelHubPositionLS).Size();
 	float SpringDelta = FMath::Clamp(SpringMaxLenght - NewSpringLenght, 0.0f, SpringMaxLenght);
+
+	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation(), FString::SanitizeFloat(FVector(LineTraceOffsetTopLS-LineTraceOffsetBottomLS).Size()), 0, FColor::Blue, 0.0f, false);
+	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation()+FVector(0.0f,0.0f,10.0f), FString::SanitizeFloat(SpringMaxLenght), 0, FColor::Red, 0.0f, false);
+	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation(), WheelHubPositionLS.ToString(), 0, FColor::Blue, 0.0f, false);
+	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation()+FVector(0.0f,0.0f,10.0f), SpringOffsetTopAdjusted.ToString(), 0, FColor::Red, 0.0f, false);
 
 	float CompressionRatio = FMath::Clamp((NewSpringLenght - 1.0f) / SpringMaxLenght, 0.0f, 1.0f);
 
@@ -369,9 +373,16 @@ void UMMTSuspensionStack::GetSuspensionForce(float &Magnitude, FVector& WorldSpa
 	SurfaceVelocity = ContactInducedVelocity;
 }
 
-FVector UMMTSuspensionStack::GetWheelHubPosition()
+FVector UMMTSuspensionStack::GetWheelHubPosition(bool bInWorldSpace)
 {
-	return WheelHubPositionLS;
+	if (bInWorldSpace)
+	{
+		return ReferenceFrameTransform.TransformPosition(WheelHubPositionLS);
+	}
+	else
+	{
+		return WheelHubPositionLS;
+	}
 }
 
 

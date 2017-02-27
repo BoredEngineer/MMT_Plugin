@@ -73,7 +73,7 @@ public:
 	*	@param FrictionSurfaceVel	Linear velocity of the friction surface
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
-	void SetFrictionSurfaceVelocity(const FVector& FrictionSurfaceVel);
+	void SetFrictionSurfaceVelocity(FVector FrictionSurfaceVel = FVector::ZeroVector);
 
 	/**
 	*	Runs calculations on friction component, applies friction force to effected component and returns reaction forces (forces that can effect track or a wheel)
@@ -83,7 +83,7 @@ public:
 	*	@return	RollingFrictionForce		Rolling friction force is a force opposing rolling of the track or the wheel, it depends on ground pressure and ground surface properties
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
-	void PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce);
+	void PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
 
 	/**
 	*	Switches debug mode on/off with every call
@@ -107,14 +107,11 @@ private:
 	UPROPERTY()
 	FVector	PrevRelativeVelocityAtPoint;
 
-	UPROPERTY()
-	const UEnum* PhysicalSurfaceEnum;
-
 	//Find reference to named components
 	void GetComponentsReference();
 
 	//Runs calculations on friction component, applies friction force to effected component and returns reaction forces (forces that can effect track or a wheel)
 	void ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
-		const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce);
+		const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
 
 };

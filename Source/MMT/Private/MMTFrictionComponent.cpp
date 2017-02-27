@@ -1,6 +1,7 @@
 //Copyright(c) 2016 Viktor Kuropiatnyk "BoredEngineer"
 
 #include "MMTPluginPCH.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsSettings.h"
 #include "MMTBPFunctionLibrary.h"
 #include "MMTFrictionComponent.h"
 
@@ -26,9 +27,6 @@ UMMTFrictionComponent::UMMTFrictionComponent()
 
 	PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficientStruct());
 	//PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient(EPhysicalSurface::SurfaceType_Default, 0.02f));
-	
-	PhysicalSurfaceEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EPhysicalSurface"));
-
 }
 
 // Called when the game starts or when spawned
@@ -89,7 +87,7 @@ void UMMTFrictionComponent::ResetFrictionPoints()
 }
 
 // Set friction surface linear velocity
-void UMMTFrictionComponent::SetFrictionSurfaceVelocity(const FVector& FrictionSurfaceVel)
+void UMMTFrictionComponent::SetFrictionSurfaceVelocity(FVector FrictionSurfaceVel)
 {
 	FrictionSurfaceVelocity = FrictionSurfaceVel;
 }
@@ -115,7 +113,7 @@ void UMMTFrictionComponent::GetComponentsReference()
 }
 
 // Handles logic of contact points stored in array and passes parameters to ApplyFriction() where actual physics calculations are done
-void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce)
+void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce)
 {
 	//Gather stats
 	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionPhysicsUpdate);
@@ -158,7 +156,7 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 		{
 			//Return zero vector if point is inactive
 			NormalizedReactionForce = FVector::ZeroVector;
-			RollingFrictionForce = FVector::ZeroVector;
+			RollingFrictionForce = 0.0f;
 		}
 		
 		// Remove first element as it was processed or wasn't active
@@ -168,7 +166,7 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 	{
 		//Return zero vector if no points are stored in array
 		NormalizedReactionForce = FVector::ZeroVector;
-		RollingFrictionForce = FVector::ZeroVector;
+		RollingFrictionForce = 0.0f;
 	}
 }
 
@@ -180,7 +178,7 @@ void UMMTFrictionComponent::ToggleDebugMode()
 
 // Runs calculations on friction component, applies friction force to effected component and returns reaction forces(forces that can effect track or a wheel)
 void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
-	const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, FVector& RollingFrictionForce)
+	const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce)
 {
 	// Gather stats
 	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionApply);
@@ -193,7 +191,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component's EffectedComponentMesh reference is invalid!"), *GetOwner()->GetName(), *GetName()));
 		UE_LOG(LogTemp, Warning, TEXT("%s->%s component's EffectedComponentMesh reference is invalid!"), *GetOwner()->GetName(), *GetName());
 		NormalizedReactionForce = FVector::ZeroVector;
-		RollingFrictionForce = FVector::ZeroVector;
+		RollingFrictionForce = 0.0f;
 		return;
 	}
 	
@@ -269,13 +267,14 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 		}
 	}
 
-	RollingFrictionForce = RelativeVelocityAtPoint.GetSafeNormal() * NormalForceAtContactPoint * RollingFrictionCoefficient;
+	//RollingFrictionForce = RelativeVelocityAtPoint.GetSafeNormal() * NormalForceAtContactPoint * RollingFrictionCoefficient;// / EffectedComponentMesh->GetMass();
+	RollingFrictionForce = NormalForceAtContactPoint * RollingFrictionCoefficient;
 
 	if (IsDebugMode)
 	{
 		DrawDebugLine(GetWorld(), ContactPointLocation, ContactPointLocation + ApplicationForce * 0.005f, FColor::Yellow, false, 0.0f, 0, 3.0f);
-		DrawDebugLine(GetWorld(), ContactPointLocation, ContactPointLocation + RollingFrictionForce * 0.005f, FColor::Green, false, 0.0f, 0, 3.0f);
-		DrawDebugString(GetWorld(), ContactPointLocation+FVector(0.0f, 0.0f, 50.0f), (PhysicalSurfaceEnum ? PhysicalSurfaceEnum->GetEnumName(PhysicalSurface) : FString("<Invalid Enum>")), nullptr, FColor::Cyan, 0.0f, false);
-		//DrawDebugString(GetWorld(), ContactPointLocation + FVector(0.0f, 0.0f, 25.0f), FString("Normal Force: ") + FString::SanitizeFloat(NormalForceAtContactPoint), nullptr, FColor::Turquoise, 0.0f, false);
+		DrawDebugLine(GetWorld(), ContactPointLocation, ContactPointLocation + RelativeVelocityAtPoint.GetSafeNormal() * RollingFrictionForce * 0.01f, FColor::Green, false, 0.0f, 0, 3.0f);
+		//DrawDebugString(GetWorld(), ContactPointLocation + FVector(0.0f, 0.0f, 50.0f), UMMTBPFunctionLibrary::GetEnumValueAsString<EPhysicalSurface>("EPhysicalSurface", PhysicalSurface), nullptr, FColor::Cyan, 0.0f, false);
+		DrawDebugString(GetWorld(), ContactPointLocation + FVector(0.0f, 0.0f, 50.0f), UMMTBPFunctionLibrary::GetPhysicalSurfaceRedableName(PhysicalSurface), nullptr, FColor::Cyan, 0.0f, false);
 	}
 }
