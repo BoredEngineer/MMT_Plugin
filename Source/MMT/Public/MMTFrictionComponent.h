@@ -22,23 +22,29 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Disables component from doing physics calculations and applying forces, useful for debugging."))
+		bool bDisabled;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Component to which friction force will be applied, it has to simulate physics"))
-	FString EffectedComponentName;
+		FString EffectedComponentName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Enable on screen debug output"))
-	bool IsDebugMode;
+		bool IsDebugMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Static friction coefficient in X axis"))
-	float MuXStatic;
+		float MuXStatic;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Kinetic friction coefficient in X axis"))
-	float MuXKinetic;
+		float MuXKinetic;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Static friction coefficient in Y axis"))
-	float MuYStatic;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Set TRUE to specify different friction coefficient in Y axis, otherwise MuX is used as uniform coefficient. Useful for objects such as ice skates, brushed contact surface and some types of tank tracks."))
+		bool bUseAnisotropicFriction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Kinetic friction coefficient in Y axis"))
-	float MuYKinetic;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (EditCondition = "bUseAnisotropicFriction", ToolTip = "Static friction coefficient in Y axis"))
+		float MuYStatic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (EditCondition = "bUseAnisotropicFriction", ToolTip = "Kinetic friction coefficient in Y axis"))
+		float MuYKinetic;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Array of physical surfaces and desired rolling friction coefficients for them"))
 	TArray<FPhysicalSurfaceRollingFrictionCoefficientStruct> PhysicsSurfaceResponse;

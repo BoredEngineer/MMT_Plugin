@@ -6,9 +6,9 @@
 #include "MMTFrictionComponent.h"
 
 //For UE4 Profiler ~ Stat
-DECLARE_CYCLE_STAT(TEXT("MMT ~ Register friction point"), STAT_MMTRegisterFrictionPoint, STATGROUP_MMT);
-DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Physics Update"), STAT_MMTFrictionPhysicsUpdate, STATGROUP_MMT);
-DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Apply"), STAT_MMTFrictionApply, STATGROUP_MMT);
+//DECLARE_CYCLE_STAT(TEXT("MMT ~ Register friction point"), STAT_MMTRegisterFrictionPoint, STATGROUP_MMT);
+//DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Physics Update"), STAT_MMTFrictionPhysicsUpdate, STATGROUP_MMT);
+//DECLARE_CYCLE_STAT(TEXT("MMT ~ Friction Apply"), STAT_MMTFrictionApply, STATGROUP_MMT);
 
 
 //Set default values
@@ -18,15 +18,16 @@ UMMTFrictionComponent::UMMTFrictionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
+	bDisabled = false;
 	EffectedComponentName = FString("none");
 	IsDebugMode = false;
 	MuXStatic = 0.75f;
 	MuXKinetic = 0.5f;
+	bUseAnisotropicFriction = false;
 	MuYStatic = 1.0f;
 	MuYKinetic = 0.75f;
 
 	PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficientStruct());
-	//PhysicsSurfaceResponse.Add(FPhysicalSurfaceRollingFrictionCoefficient(EPhysicalSurface::SurfaceType_Default, 0.02f));
 }
 
 // Called when the game starts or when spawned
@@ -47,7 +48,7 @@ void UMMTFrictionComponent::RegisterFrictionPoint(const FVector& ImpactForceOrIm
 													UPhysicalMaterial* PhysicalMaterial, const FVector InducedVelocity)
 {
 	//Gather stats
-	SCOPE_CYCLE_COUNTER(STAT_MMTRegisterFrictionPoint);
+	//SCOPE_CYCLE_COUNTER(STAT_MMTRegisterFrictionPoint);
 
 	FContactPointDataStruct NewContactPoint;
 	TEnumAsByte<EPhysicalSurface> PhysicalSurfaceLoc = EPhysicalSurface::SurfaceType_Default;
@@ -80,7 +81,7 @@ bool UMMTFrictionComponent::IsFrictionPointActive()
 	return false;
 }
 
-// Empties array of stored friction points, this needs to be done after physics sub-stepping or before new collision information come in
+// Empties array of stored friction points, this needs to be done after physics sub-stepping or before new collision information comes in
 void UMMTFrictionComponent::ResetFrictionPoints()
 {
 	ContactPointsData.Empty();
@@ -116,12 +117,12 @@ void UMMTFrictionComponent::GetComponentsReference()
 void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce)
 {
 	//Gather stats
-	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionPhysicsUpdate);
+	//SCOPE_CYCLE_COUNTER(STAT_MMTFrictionPhysicsUpdate);
 
 	FVector NormalizedReactionForceOut = FVector::ZeroVector;
 	FVector RollingFrictionForceOut = FVector::ZeroVector;
 
-	if (ContactPointsData.Num() > 0)
+	if ((ContactPointsData.Num() > 0) & !bDisabled)
 	{
 		if (ContactPointsData[0].IsPointActive)
 		{
@@ -164,7 +165,7 @@ void UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 	}
 	else
 	{
-		//Return zero vector if no points are stored in array
+		//Return zero vector if no points are stored in array or component is disabled
 		NormalizedReactionForce = FVector::ZeroVector;
 		RollingFrictionForce = 0.0f;
 	}
@@ -181,7 +182,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce)
 {
 	// Gather stats
-	SCOPE_CYCLE_COUNTER(STAT_MMTFrictionApply);
+	//SCOPE_CYCLE_COUNTER(STAT_MMTFrictionApply);
 
 	float NormalForceAtContactPoint = PreNormalForceAtPoint.ProjectOnTo(ContactPointNormal).Size();
 	
@@ -217,8 +218,17 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 	//Calculate static and kinetic friction coefficients, taking into account velocity direction and friction ellipse
 	float MuStatic;
 	float MuKinetic;
-	UMMTBPFunctionLibrary::GetMuFromFrictionElipse(RelativeVelocityAtPoint.GetSafeNormal(), ReferenceFrameTransform.TransformVector(FVector::ForwardVector),
-													MuXStatic, MuXKinetic, MuYStatic, MuYKinetic, MuStatic, MuKinetic);
+	if (bUseAnisotropicFriction)
+	{
+		UMMTBPFunctionLibrary::GetMuFromFrictionElipse(RelativeVelocityAtPoint.GetSafeNormal(), ReferenceFrameTransform.TransformVector(FVector::ForwardVector),
+			MuXStatic, MuXKinetic, MuYStatic, MuYKinetic, MuStatic, MuKinetic);
+	}
+	else
+	{
+		MuStatic = MuXStatic;
+		MuKinetic = MuXKinetic;
+	}
+	
 
 	//Calculate "stopping force" which is amount of force necessary to completely remove velocity of the object
 	FVector	StoppingForce = ((RelativeVelocityAtPoint * (-1.0f) * EffectedComponentMesh->GetMass()) / DeltaTime) / NumberOfContactPoints;
@@ -228,6 +238,7 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 
 	//Friction Force that will be applied to effected mesh component
 	FVector ApplicationForce;
+	//If stopping force is larger than static friction limit we switch to kinetic friction
 	if (StoppingForce.Size() >= MuStaticByLoad)
 	{
 		ApplicationForce = StoppingForce.GetClampedToSize(0.0f, NormalForceAtContactPoint * MuKinetic);
@@ -245,13 +256,11 @@ void UMMTFrictionComponent::ApplyFriction(const FVector& ContactPointLocation, c
 		}
 	}
 	
-	//Get component name
-	//DrawDebugString(GetWorld(), ContactPointLocation+FVector(0.0f,0.0f,20.0f), FString::Printf(TEXT("FricComp %s"), *GetName()), nullptr, FColor::White, 0.0f, false);
-
 	//Apply friction force
 	UMMTBPFunctionLibrary::MMTAddForceAtLocationComponent(EffectedComponentMesh, ApplicationForce, ContactPointLocation);
 
-	//Calculate Reaction force
+	//Calculate Reaction force, reaction force is scaled down by the total mass of the effected component. Later this force is scaled up to match mass of the component it will be applied to.
+	//For example, reaction force can rotate not powered wheels when vehicle is rolling down. In this case, "normalized" reaction force will be scaled up by the mass of the wheel before applied as torque to the wheel itself
 	NormalizedReactionForce = (ApplicationForce * (-1.0f)) / EffectedComponentMesh->GetMass();
 
 	

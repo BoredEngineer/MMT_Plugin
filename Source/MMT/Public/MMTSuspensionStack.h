@@ -153,14 +153,28 @@ private:
 	UPROPERTY()
 		float SuspensionForceScale = 1.0f;
 
-	//Line trace specific
+	//Ray check mode specific
 	FCollisionQueryParams LineTraceQueryParameters;
 	FCollisionResponseParams LineTraceResponseParameters;
 	UPROPERTY()
 		FVector LineTraceOffsetTopLS;
 	UPROPERTY()
 		FVector LineTraceOffsetBottomLS;
-	
+
+	//Variable to store location of the trace hit
+	UPROPERTY()
+		FVector TracedHubLocation;
+
+	//Sphere check mode specific
+	FCollisionQueryParams SphereTraceQueryParameters;
+	FCollisionResponseParams SphereTraceResponseParameters;
+	FCollisionShape SphereCheckShape;
+
+	//Shape sweep mode specific
+	FComponentQueryParams ShapeSweepQueryParameters;
+	UPROPERTY()
+		FVector ShapeSweepLocation;
+
 	//Variables for recording collision of the wheel and passing data further to friction processing
 	UPROPERTY()
 		bool bContactPointActive = false;
@@ -191,6 +205,12 @@ private:
 	void LineTraceForContact();
 	void AsyncLineTraceForContact();
 
+	//Find wheel hub position and contact information for Sphere Check suspension mode
+	void SphereTraceForContact();
+
+	//Find wheel hub position and contact information for Shape Sweep suspension mode
+	void ShapeSweepForContact();
+
 	//Calculate suspension force and apply to effected body
 	void CalculateAndApplySuspensionForce(const float& DeltaTime);
 
@@ -198,7 +218,13 @@ private:
 
 	//Draw simple debug lines for suspension traces
 	static void DrawDebugLineTrace(bool bBlockingHit, FVector Start, FVector End, FVector HitPoint, UWorld *WorldRef);
+	
+	//Draw simple debug spheres for suspension traces
+	static void DrawDebugSphereTrace(bool bBlockingHit, FVector SphereStart, FVector SphereEnd, FVector SphereCenter, float SphereRadius, FVector HitPoint, UWorld *WorldRef);
 
+	//Draw simple debug lines for shape sweep of suspension traces
+	static void DrawDebugShapeSweep(bool bBlockingHit, FVector Start, FVector End, FVector Location, FVector HitPoint, UWorld *WorldRef);
+	
 	//DoOnce for debug messages
 	template<typename CallbackType> void DoOnce(const CallbackType& Callback) { static bool bDone = false; if (!bDone) { Callback(); bDone = true; } };
 
