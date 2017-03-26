@@ -38,12 +38,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Instanced mesh component for rendering treads"))
 	FString TreadsInstancedMeshComponentName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of default location for track spline control points"))
-	TArray<FVector> TrackSplinePointLocations;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of default tangents for track spline control points"))
-	TArray<FVector> TrackSplinePointTangents;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Array of spline point indexes and references for their animation"))
 	TArray<FTrackSplinePointAnimatedStruct> AnimatedTrackSplinePoints;
 
@@ -51,10 +45,19 @@ public:
 	int32 TreadsOnSide;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Plays animation in reverse if meshes are rotated 180 degrees"))
-	bool IsFlipAnimation;
+	bool bFlipAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Set to true if pivot of your tread mesh is aligned with front connection pin. This approach provides more precise alignment of the treads. When false it's assumed that pivot is in middle of the tread mesh."))
+	bool bTreadPivotIsOnPin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "(Optional) Array of default location for track spline control points in case you don't prepared spline in editor"))
+	TArray<FVector> TrackSplinePointLocations;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "(Optional) Array of default tangents for track spline control points in case you don't prepared spline in editor"))
+	TArray<FVector> TrackSplinePointTangents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation Settings", meta = (ToolTip = "Enable on screen debug output"))
-	bool IsDebugMode;
+	bool bDebugMode;
 
 
 	/**
@@ -100,6 +103,9 @@ private:
 	// Find reference to named components
 	void GetComponentsReference();
 
-	//Get transform along spline with flipped rotation when spline flips
-	FTransform GetAllignedTransformAlongSpline(const float& Distance);
+	//Calculate transform of the instance using tangent of the spline
+	FTransform GetAllignedTransformAlongSplineUsingTangent(const float& Distance);
+	
+	//Calculate transform of the instance using position of current instance and previous instance
+	FTransform GetAllignedTransformAlongSplineUsingPosition(const float& Distance, FVector PositionOfPrevInstance, FVector& OutPositionOfCurrentInstance);
 };

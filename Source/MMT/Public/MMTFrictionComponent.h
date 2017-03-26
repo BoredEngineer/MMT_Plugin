@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Array of physical surfaces and desired rolling friction coefficients for them"))
 	TArray<FPhysicalSurfaceRollingFrictionCoefficientStruct> PhysicsSurfaceResponse;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Friction Settings", meta = (ToolTip = "Experimental calculation of friction force"))
+		bool IsAlternateFriction;
+
 	/**
 	*	Register collision event of the component related to Friction Component
 	*	@param NormalImpulseAtPoint		Normal impulse is amount of "force" that was exerted on object as the result of collision.  Normal impulse is a typical output of OnComponentHit event.
@@ -85,17 +88,32 @@ public:
 	*	Runs calculations on friction component, applies friction force to effected component and returns reaction forces (forces that can effect track or a wheel)
 	*	@param NumberOfContactPoints		Total number of friction points active on this update cycle
 	*	@param DeltaTime					Delta time
+	*	@return								Returns true if point was active and state of static friction was achieved, including absence of induced of friction surface velocity 
 	*	@return	NormalizedReactionForce		Reaction force to friction force. When friction force between track and ground pushes vehicle forward, reaction force pushes track in opposite direction
 	*	@return	RollingFrictionForce		Rolling friction force is a force opposing rolling of the track or the wheel, it depends on ground pressure and ground surface properties
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
-	void PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
+	bool PhysicsUpdate(const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
 
 	/**
 	*	Switches debug mode on/off with every call
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
 	void ToggleDebugMode();
+
+	/**
+	*	Returns last calculated friction force vector in world space
+	*	@return		Friction force vector in world space from last update
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
+	FVector GetFrictionForce();
+
+	/**
+	*	Returns last calculated friction limit magnitude (N * mu)
+	*	@return		Last known friction limit (N * mu)
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
+	float GetFrictionLimit();
 
 private:
 	UPROPERTY()
@@ -113,11 +131,27 @@ private:
 	UPROPERTY()
 	FVector	PrevRelativeVelocityAtPoint;
 
+	UPROPERTY()
+	FVector	LastFrictionForce;
+	
+	UPROPERTY()
+	float	LastFrictionLimit;
+
+	UPROPERTY()
+		FVector PrevAngularVelocity;
+	
+	UPROPERTY()
+		FVector PrevLinearVelocity;
+
 	//Find reference to named components
 	void GetComponentsReference();
 
 	//Runs calculations on friction component, applies friction force to effected component and returns reaction forces (forces that can effect track or a wheel)
-	void ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
+	//returns true if friction resolved in static mode and there are no surface or induced velocity
+	bool ApplyFriction(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
+		const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
+
+	bool ApplyFrictionAlternative(const FVector& ContactPointLocation, const FVector& ContactPointNormal, const FVector& InducedVelocity, const FVector& PreNormalForceAtPoint,
 		const EPhysicalSurface& PhysicalSurface, const float& NumberOfContactPoints, const float& DeltaTime, FVector& NormalizedReactionForce, float& RollingFrictionForce);
 
 };

@@ -6,6 +6,7 @@
 #include "Components/SplineComponent.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/PhysicsSettings.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsConstraintComponent.h"
 #include "MMTBPFunctionLibrary.generated.h"
 
 UCLASS()
@@ -113,6 +114,15 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Get Friction Coefficients from Friction Ellipse"), Category = "MMT Utility")
 	static void GetMuFromFrictionElipse(const FVector& VelocityDirectionNormalizedWS, const FVector& ForwardVectorWS, const float MuXStatic, const float MuXKinetic, const float MuYStatic, const float MuYKinetic, 
 										float& MuStatic, float& MuKinetic); //output variables
+	
+	/**
+	*	Sets linear break threshold on physics constraint component as such functionality is not exposed to BP.
+	*	@param Target					Physics constraint to set break threshold on
+	*	@param LinearBreakThreshold		Float magnitude of force that is enough to break constraint
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set physics constraint linear break threshold"), Category = "MMT Utility")
+	static void SetLinearBreakThreshold(UPhysicsConstraintComponent* Target, const float LinearBreakThreshold);
+
 
 	//Get enum as readable string
 	template<typename TEnum>

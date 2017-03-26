@@ -384,23 +384,34 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 		{
 			if (SuspensionSettings.SimulationMode == ESuspensionSimMode::ShapeSweep)
 			{
-
-				if (SuspensionSettings.bCanShapeSweep)
+				if (IsValid(SweepShapeMeshComponent))
 				{
-					ShapeSweepForContact();
-					if (bContactPointActive)
+					if (SuspensionSettings.bCanShapeSweep)
 					{
-						WheelHubPositionLS = ReferenceFrameTransform.InverseTransformPosition(TracedHubLocation);
+						ShapeSweepForContact();
+						if (bContactPointActive)
+						{
+							WheelHubPositionLS = ReferenceFrameTransform.InverseTransformPosition(TracedHubLocation);
+						}
+						else
+						{
+							//If trace failed wheel hub is assumed to be in lowest possible position of suspension
+							WheelHubPositionLS = SpringOffsetBottomAdjusted;
+						}
+
+						if (SuspensionSettings.bEnableDebugMode)
+						{
+							DrawDebugSphere(ParentComponentRef->GetWorld(), ReferenceFrameTransform.TransformPosition(WheelHubPositionLS), 10.0, 9, FColor::Blue, false, 0.0f, 0, 1.0f);
+						}
 					}
 					else
 					{
-						//If trace failed wheel hub is assumed to be in lowest possible position of suspension
-						WheelHubPositionLS = SpringOffsetBottomAdjusted;
-					}
-
-					if (SuspensionSettings.bEnableDebugMode)
-					{
-						DrawDebugSphere(ParentComponentRef->GetWorld(), ReferenceFrameTransform.TransformPosition(WheelHubPositionLS), 10.0, 9, FColor::Blue, false, 0.0f, 0, 1.0f);
+						if (!bWarningMessageDisplayed)
+						{
+							bWarningMessageDisplayed = true;
+							GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Shape Sweep mode is enabled but bCanShapeSweep property is set to false."), *ComponentsParentName, *ComponentName));
+							UE_LOG(LogTemp, Warning, TEXT("%s->%s Shape Sweep mode is enabled but bCanShapeSweep property is set to false."), *ComponentsParentName, *ComponentName);
+						}
 					}
 				}
 				else
@@ -408,10 +419,11 @@ void UMMTSuspensionStack::UpdateWheelHubPosition()
 					if (!bWarningMessageDisplayed)
 					{
 						bWarningMessageDisplayed = true;
-						GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Shape Sweep mode is enabled but bCanShapeSweep property is set to false."), *ComponentsParentName, *ComponentName));
-						UE_LOG(LogTemp, Warning, TEXT("%s->%s Shape Sweep mode is enabled but bCanShapeSweep property is set to false."), *ComponentsParentName, *ComponentName);
+						GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Shape Sweep mode is enabled but Sweep Shape mesh reference is invalid"), *ComponentsParentName, *ComponentName));
+						UE_LOG(LogTemp, Warning, TEXT("%s->%s Shape Sweep mode is enabled but Sweep Shape mesh reference is invalid"), *ComponentsParentName, *ComponentName);
 					}
 				}
+
 			}
 		}
 	}

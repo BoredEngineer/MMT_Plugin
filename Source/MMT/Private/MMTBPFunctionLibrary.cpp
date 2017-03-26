@@ -207,6 +207,16 @@ UInstancedStaticMeshComponent* UMMTBPFunctionLibrary::GetInstancedStaticMeshComp
 	return nullptr;
 }
 
+void UMMTBPFunctionLibrary::SetLinearBreakThreshold(UPhysicsConstraintComponent* Target, const float LinearBreakThreshold)
+{
+	if (IsValid(Target))
+	{
+		Target->ConstraintInstance.ProfileInstance.bLinearBreakable = true;
+		Target->ConstraintInstance.ProfileInstance.LinearBreakThreshold = LinearBreakThreshold;
+		Target->InitComponentConstraint(); //this will re-create joint and apply new settings
+	}
+}
+
 
 // X and Y coefficients of friction define friction coefficient only in respective axes, for intermediate directions, value of friction coefficient needs to be interpolated.
 // We use points on ellipse to as interpolated coefficients and X and Y friction coefficients define radii of the ellipse.
