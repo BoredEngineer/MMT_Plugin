@@ -93,6 +93,12 @@ void UMMTFrictionComponent::SetFrictionSurfaceVelocity(FVector FrictionSurfaceVe
 	FrictionSurfaceVelocity = FrictionSurfaceVel;
 }
 
+// Set friction surface linear speed
+void UMMTFrictionComponent::SetFrictionSurfaceSpeed(float FrictionSurfaceSpeed)
+{
+	FrictionSurfaceSpd = FrictionSurfaceSpeed;
+}
+
 //Find and store reference to named components
 void UMMTFrictionComponent::GetComponentsReference()
 {
@@ -178,6 +184,8 @@ bool UMMTFrictionComponent::PhysicsUpdate(const float& NumberOfContactPoints, co
 					PreNormalForceCentered = ReferenceFrameTransform.InverseTransformVector(ContactPointsData[0].ImpactForceOrImpulseAtPoint);
 				}
 				PreNormalForceCentered = ReferenceFrameTransform.TransformVector(FVector(PreNormalForceCentered.X, 0.0f, PreNormalForceCentered.Z));
+
+				FrictionSurfaceVelocity = FVector::CrossProduct(PointNormalCentered, ReferenceFrameTransform.TransformVector(FVector(0.f, 1.f, 0.f))).GetSafeNormal() * FrictionSurfaceSpd;
 
 				isResolvedAsStatic = ApplyFriction(PointLocationCentered, PointNormalCentered, ContactPointsData[0].InducedVelocity, PreNormalForceCentered, 
 					ContactPointsData[0].PhysicalSurface, NumberOfContactPoints, DeltaTime, NormalizedReactionForce, RollingFrictionForce);

@@ -85,6 +85,13 @@ public:
 	void SetFrictionSurfaceVelocity(FVector FrictionSurfaceVel = FVector::ZeroVector);
 
 	/**
+	*	Sets speed of the friction surface. In case of the tank it would be linear velocity of the track.
+	*	@param FrictionSurfacespeed		Linear speed of the friction surface
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Friction Component")
+	void SetFrictionSurfaceSpeed(float FrictionSurfaceSpeed = 0.0f);
+
+	/**
 	*	Runs calculations on friction component, applies friction force to effected component and returns reaction forces (forces that can effect track or a wheel)
 	*	@param NumberOfContactPoints		Total number of friction points active on this update cycle
 	*	@param DeltaTime					Delta time
@@ -121,6 +128,9 @@ private:
 
 	UPROPERTY()
 	FVector FrictionSurfaceVelocity; //Linear Track Velocity in case of a tank
+
+	UPROPERTY()
+	float FrictionSurfaceSpd; //Linear Track Speed in case of a tank
 
 	UPROPERTY()
 	TArray<FContactPointDataStruct> ContactPointsData;
