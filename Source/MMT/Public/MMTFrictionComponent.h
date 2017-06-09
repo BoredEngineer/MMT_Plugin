@@ -7,7 +7,7 @@
 #include "Containers/UnrealString.h"
 #include "Engine/EngineTypes.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-#include "MMTPhysicalSurfaceRollingFrictionCoefficientStruct.h"
+#include "MMTPhysicalSurfaceFrictionCoefficient.h"
 #include "MMTContactPointDataStruct.h"
 #include "MMTFrictionComponent.generated.h"
 

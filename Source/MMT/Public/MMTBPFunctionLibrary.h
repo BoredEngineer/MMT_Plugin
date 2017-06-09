@@ -76,6 +76,34 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set Inertia Tensor -Comp"), Category = "MMT physics sub-stepping")
 	static void MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor);
 
+	
+	template< class T >
+	static FORCEINLINE T* GetComponentReferenceByNameAndClass(UActorComponent* Target, FString Name)
+	{
+		if (IsValid(Target))
+		{
+			AActor* Owner = Target->GetOwner();
+			TArray<T*> FoundComponents;
+			Owner->GetComponents(FoundComponents);
+
+			T* Result;
+
+			for (int32 i = 0; i < FoundComponents.Num(); i++)
+			{
+				if (FoundComponents[i]->GetName() == Name)
+				{
+					Result = Cast<T>(FoundComponents[i]);
+					if (IsValid(Result))
+					{
+						return Result;
+					}
+				}
+			}
+		}
+		return nullptr;
+	}
+		
+	
 	/**
 	*	Returns reference to mesh component by the name of the component.
 	*	@param Target		Components reference that requests reference to mesh component

@@ -10,6 +10,7 @@ UMMTSuspensionStack::UMMTSuspensionStack()
 {
 	//Bind async trace delegate
 	//TraceDelegate.BindUObject(this, &UMMTSuspensionStack::AsyncTraceDone);
+	SprungComponentName = FString("Root");
 }
 
 void UMMTSuspensionStack::Initialize()
@@ -91,13 +92,13 @@ void UMMTSuspensionStack::GetNamedComponentsReference()
 	//Sprung mesh reference
 	if (!bSprungMeshComponentSetManually)
 	{
-		if (SuspensionSettings.SprungComponentName != FString("none"))
+		if (SprungComponentName != FString("none"))
 		{
-			SprungMeshComponent = UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(ParentComponentRef, SuspensionSettings.SprungComponentName);
+			SprungMeshComponent = UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(ParentComponentRef, SprungComponentName);
 			if (!IsValid(SprungMeshComponent))
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName));
-				UE_LOG(LogTemp, Warning, TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SuspensionSettings.SprungComponentName);
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SprungComponentName));
+				UE_LOG(LogTemp, Warning, TEXT("%s->%s component failed to find component named '%s' or it's not derived from MeshComponent class"), *ComponentsParentName, *ComponentName, *SprungComponentName);
 			}
 		}
 		else
@@ -470,6 +471,7 @@ void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTim
 
 	//Apply suspension force
 	UMMTBPFunctionLibrary::MMTAddForceAtLocationComponent(SprungMeshComponent, SuspensionForceWS, ReferenceFrameTransform.GetLocation());
+
 		
 	if (SuspensionSettings.bEnableDebugMode)
 	{
@@ -670,4 +672,11 @@ void UMMTSuspensionStack::AsyncTraceDone(const FTraceHandle& TraceHandle, FTrace
 		}
 	}
 	else {}
+}
+
+
+//Process async line trace results
+void UMMTSuspensionStack::Test()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%s->%s Reporting"), *ComponentsParentName, *ComponentName));
 }
