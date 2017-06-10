@@ -20,7 +20,7 @@ struct FSecondaryTickFunction : public FTickFunction
 
 //necessary fix for 4.15 compliance
 template<>
-struct TStructOpsTypeTraits<FSecondaryTickFunction> : public TStructOpsTypeTraitsBase
+struct TStructOpsTypeTraits<FSecondaryTickFunction> : public TStructOpsTypeTraitsBase2<FSecondaryTickFunction>
 {
 	enum
 	{

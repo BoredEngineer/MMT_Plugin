@@ -3,7 +3,7 @@ using System.IO;
  
 public class MMT : ModuleRules
 {
-    public MMT(TargetInfo Target)
+	public MMT(ReadOnlyTargetRules Target) : base (Target)
     {
         PrivateIncludePaths.AddRange(new string[] { "MMT/Private" });
         PublicIncludePaths.AddRange(new string[] { "MMT/Public" });
