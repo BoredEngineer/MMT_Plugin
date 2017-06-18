@@ -218,6 +218,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
 		float GetSuspensionForceScale();
 
+	/**
+	*	Get current suspension compression ratio 0..1
+	*	@return		Returns current suspension compression ratio
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		float GetSuspensionCompressionRatio();
+
+	/**
+	*	Applies anti-roll force transfered from another suspension stack on the same axis
+	*	@param AntiRollForceMagnitude	Magnitude of anti-roll force, direction is determined by suspension configuration
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		void ApplyAntiRollForce(float AntiRollForceMagnitude = 0.0f);
+
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
 		void Test();
 
@@ -260,6 +274,8 @@ private:
 		FVector SuspensionForceWS = FVector::ZeroVector;
 	UPROPERTY()
 		float SuspensionForceScale = 1.0f;
+	UPROPERTY()
+		float CompressionRatio;
 
 	//Ray check mode specific
 	FCollisionQueryParams LineTraceQueryParameters;

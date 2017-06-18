@@ -442,7 +442,7 @@ void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTim
 	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation(), WheelHubPositionLS.ToString(), 0, FColor::Blue, 0.0f, false);
 	//DrawDebugString(ParentComponentRef->GetWorld(), ReferenceFrameTransform.GetLocation()+FVector(0.0f,0.0f,10.0f), SpringOffsetTopAdjusted.ToString(), 0, FColor::Red, 0.0f, false);
 
-	float CompressionRatio = FMath::Clamp((NewSpringLenght - 1.0f) / SpringMaxLenght, 0.0f, 1.0f);
+	CompressionRatio = FMath::Clamp((NewSpringLenght - 1.0f) / SpringMaxLenght, 0.0f, 1.0f);
 
 	float SpringForce;
 
@@ -481,6 +481,20 @@ void UMMTSuspensionStack::CalculateAndApplySuspensionForce(const float& DeltaTim
 
 	//Store last spring length
 	PreviousSpringLenght = NewSpringLenght;
+}
+
+void UMMTSuspensionStack::ApplyAntiRollForce(float AntiRollForceMagnitude)
+{
+	FVector AntiRollForceLS = AntiRollForceMagnitude * (-1) * SpringDirectionLocal;
+	SuspensionForceLS += AntiRollForceLS;
+
+	FVector AntiRollForceWS = ReferenceFrameTransform.TransformVector(AntiRollForceLS);
+	SuspensionForceWS += AntiRollForceWS;
+
+	ContactForceAtPoint = SuspensionForceWS;
+
+	//Apply anti-roll force
+	UMMTBPFunctionLibrary::MMTAddForceAtLocationComponent(SprungMeshComponent, AntiRollForceWS, ReferenceFrameTransform.GetLocation());
 }
 
 void UMMTSuspensionStack::DrawDebugLineTrace(bool bBlockingHit, FVector Start, FVector End, FVector HitPoint, UWorld *WorldRef)
@@ -635,6 +649,11 @@ float UMMTSuspensionStack::GetSuspensionForceScale()
 	return SuspensionForceScale;
 }
 
+
+float UMMTSuspensionStack::GetSuspensionCompressionRatio()
+{
+	return CompressionRatio;
+}
 
 void UMMTSuspensionStack::GetDefaultWheelPosition()
 {
