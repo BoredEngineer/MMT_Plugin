@@ -8,7 +8,7 @@
 
 
 //----------------- Track settings
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FMMTTrackPhysicalSurfaceFriction
 {
 	GENERATED_BODY()
@@ -29,7 +29,7 @@ struct FMMTTrackPhysicalSurfaceFriction
 	}
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FMMTTrackFrictionSettings
 {
 	GENERATED_BODY()

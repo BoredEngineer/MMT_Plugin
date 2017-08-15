@@ -8,7 +8,7 @@
 #include "MMTVehicleSuspensionStructs.generated.h"
 
 //----------------- Tracks configuration
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FTrackSets
 {
 	GENERATED_USTRUCT_BODY()
@@ -33,7 +33,7 @@ public:
 	}
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FTracksConfig
 {
 	GENERATED_USTRUCT_BODY()
@@ -45,7 +45,7 @@ public:
 };
 
 //----------------- Wheels configuration
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FWheelSets
 {
 	GENERATED_USTRUCT_BODY()
@@ -67,7 +67,7 @@ public:
 	}
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FWheelsConfig
 {
 	GENERATED_USTRUCT_BODY()
@@ -80,7 +80,7 @@ public:
 
 
 //----------------- Passive surface configuration
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FPassiveSets
 {
 	GENERATED_USTRUCT_BODY()
@@ -103,7 +103,7 @@ public:
 	}
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FPassiveSurfaceConfig
 {
 	GENERATED_USTRUCT_BODY()
