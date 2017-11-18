@@ -112,7 +112,7 @@ void UMMTBPFunctionLibrary::MMTAddTorqueComponent(UPrimitiveComponent * Target, 
 	FBodyInstance* BodyInstance = GetBodyInstance(Target);
 
 	if (BodyInstance != NULL) {
-		BodyInstance->AddTorque(Torque, false, bAccelChange);
+		BodyInstance->AddTorqueInRadians(Torque, false, bAccelChange);
 	}
 }
 

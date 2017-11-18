@@ -371,7 +371,7 @@ void UMMTTrackAnimationComponent::PlacesInstancesAlongSpline(bool CreateInstance
 					}
 					else
 					{
-						if (TreadsInstancedMeshComponent->GetNumRenderInstances() > 0)
+						if (TreadsInstancedMeshComponent->GetInstanceCount() > 0) //was TreadsInstancedMeshComponent->GetNumRenderInstances() before 4.18
 						{
 							TreadsInstancedMeshComponent->UpdateInstanceTransform(i, bAnimationLagCompensation ? TreadAllignedTransformPreviousUpdate [i] : TreadAllignedTransform,
 								false, (i + 1 == TreadsOnSide) ? true : false, false);
@@ -421,11 +421,11 @@ void UMMTTrackAnimationComponent::PlacesInstancesAlongSpline(bool CreateInstance
 					}
 					else
 					{
-						if(SecondTreadsInstancedMeshComponent->GetNumRenderInstances() > 0)
+						if(SecondTreadsInstancedMeshComponent->GetInstanceCount() > 0) //was TreadsInstancedMeshComponent->GetNumRenderInstances() before 4.18
 						{SecondTreadsInstancedMeshComponent->UpdateInstanceTransform(i, bAnimationLagCompensation ? SecondaryTreadAllignedTransformPreviousUpdate[i] : SecondaryTreadAllignedTransform,
 							false, (i + 1 == TreadsOnSide) ? true : false, false);}
 
-						if(TreadsInstancedMeshComponent->GetNumRenderInstances() > 0)
+						if(TreadsInstancedMeshComponent->GetInstanceCount() > 0) //was TreadsInstancedMeshComponent->GetNumRenderInstances() before 4.18
 						{TreadsInstancedMeshComponent->UpdateInstanceTransform(i, bAnimationLagCompensation ? TreadAllignedTransformPreviousUpdate[i] : TreadAllignedTransform,
 							false, (i + 1 == TreadsOnSide) ? true : false, false);}
 					}
