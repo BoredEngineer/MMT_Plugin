@@ -38,12 +38,14 @@ public:
 	void CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance);
 
 	/* This event is called on every physics tick, including sub-steps. */
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "MMT Physics Tick"), Category = "MMT physics sub-stepping")
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "MMT Physics Tick"), Category = "MMT physics sub-stepping")
 	void MMTPhysicsTick(float SubstepDeltaTime);
-
+	virtual void MMTPhysicsTick_Implementation(float SubstepDeltaTime);
+	
 	/* This event is called ones per frame after physics update. */
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "MMT Post-Physics Tick"), Category = "MMT")
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "MMT Post-Physics Tick"), Category = "MMT")
 	void MMTAfterPhysicsTick(float DeltaTime);
+	virtual void MMTAfterPhysicsTick_Implementation(float DeltaTime);
 
 	/**
 	*	Get world-space transform of this pawn. BodyInstance is used to retrieve transform, its up-to date with physics sub-stepping.
