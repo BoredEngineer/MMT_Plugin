@@ -85,6 +85,11 @@ void AMMTPawn::CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance)
 	MMTPhysicsTick(DeltaTime);
 }
 
+void AMMTPawn::MMTPhysicsTick_Implementation(float SubstepDeltaTime)
+{
+
+}
+
 // Get instance of physics body from component
 FBodyInstance * AMMTPawn::GetBodyInstance(UPrimitiveComponent * PrimitiveComponent)
 {
@@ -92,6 +97,11 @@ FBodyInstance * AMMTPawn::GetBodyInstance(UPrimitiveComponent * PrimitiveCompone
 		return NULL;
 	}
 	return PrimitiveComponent->GetBodyInstance();
+}
+
+void AMMTPawn::MMTAfterPhysicsTick_Implementation(float DeltaTime)
+{
+
 }
 
 // Get MMTPawn transform from BodyInstance as its valid during physics sub-stepping
