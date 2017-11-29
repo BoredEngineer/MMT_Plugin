@@ -55,7 +55,7 @@ public:
 	FTransform MMTGetTransformThisPawn();
 
 
-private:
+protected:
 	// Reference to MMTPawn root component
 	UPROPERTY()
 	UPrimitiveComponent* PawnRootComponent;
