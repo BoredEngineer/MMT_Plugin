@@ -162,7 +162,7 @@ public:
 			return FString("Invalid Enum");
 		}
 
-		return enumPtr->GetEnumName((int32)Value);
+		return enumPtr->GetNameStringByIndex((int32)Value);
 	}
 
 	//Get readable name of physical surface
