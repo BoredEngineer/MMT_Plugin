@@ -255,7 +255,7 @@ FTransform UMMTTrackAnimationComponent::GetAllignedTransformAlongSplineUsingPosi
 //Perceive it as a angular travel of the tread around a sprocket if full track would be wrapped around sprocket like a snake.
 void UMMTTrackAnimationComponent::CalculateIntAndFracRotationOfTrack(float DeltaPitch)
 {
-	if (!DeltaPitch == 0.0f)
+	if (!(DeltaPitch == 0.0f))
 	{
 		float NewPitch = TreadFractionalTravel + DeltaPitch;
 

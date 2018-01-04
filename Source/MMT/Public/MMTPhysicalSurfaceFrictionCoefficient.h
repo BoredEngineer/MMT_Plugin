@@ -56,11 +56,11 @@ struct FMMTPhysicalSurfaceFrictionCoefficients
 	}
 
 	//constructor with arguments
-	FMMTPhysicalSurfaceFrictionCoefficients(EPhysicalSurface Surface, float FrictionScale, float RollingFrictionCoefficient)
+	FMMTPhysicalSurfaceFrictionCoefficients(EPhysicalSurface Surface, float FrictionScale, float RollingFrictionCoefficientIn)
 	{
 		PhysicalSurface = Surface;
 		FrictionScaleFactor = FrictionScale;
-		RollingFrictionCoefficient = RollingFrictionCoefficient;
+		RollingFrictionCoefficient = RollingFrictionCoefficientIn;
 	}
 };
 
