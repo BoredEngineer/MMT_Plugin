@@ -151,6 +151,28 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "MMT Set physics constraint linear break threshold"), Category = "MMT Utility")
 	static void SetLinearBreakThreshold(UPhysicsConstraintComponent* Target, const float LinearBreakThreshold);
 
+	/**
+	*	Converts from Spherical coordinates to Unit Cartesian
+	*	@param inputAngles		Spherical coordinates angles
+	*	@return					Cartesian coordinates
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Spherical to Unit Cartesian"), Category = "MMT Utility")
+	static FVector SphericalToUnitCartesian(FVector2D inputAngles)
+	{
+		return inputAngles.SphericalToUnitCartesian();
+	}
+
+	/**
+	*	Converts from Unit Cartesian to Spherical
+	*	@param inputUnitVector		Cartesian coordinates
+	*	@return						Spherical coordinates angles
+	*/
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Unit Cartesian to Spherical"), Category = "MMT Utility")
+	static FVector2D CartesianToSpherical(FVector inputUnitVector)
+	{
+		return inputUnitVector.UnitCartesianToSpherical();
+	}
+
 
 	//Get enum as readable string
 	template<typename TEnum>
