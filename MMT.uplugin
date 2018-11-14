@@ -4,7 +4,7 @@
     "FriendlyName" : "Machinery Modelling Toolkit",
     "Version" : 1,
     "VersionName": "1.0",
-    "EngineVersion" : "4.20.0",
+    "EngineVersion" : "4.21.0",
     "Description" : "Adds custom MMTPawn class with a custom event which allows to run BP calculations during physics sub-stepping. Adds functional library of sub-stepping friendly BP nodes.",
     "Category" : "MachineryModellingToolkit.MMT Plugin",
     "CreatedBy" : "BoredEngineer",
