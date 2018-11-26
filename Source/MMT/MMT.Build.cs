@@ -6,8 +6,8 @@ public class MMT : ModuleRules
 	public MMT(ReadOnlyTargetRules Target) : base (Target)
     {
         PrivateIncludePaths.AddRange(new string[] { "MMT/Private" });
-        PublicIncludePaths.AddRange(new string[] { "MMT/Public" });
- 
+        PrivatePCHHeaderFile = "Private/MMTPluginPCH.h";
+
         PublicDependencyModuleNames.AddRange(
 		new string[] { 
 				"Core", 

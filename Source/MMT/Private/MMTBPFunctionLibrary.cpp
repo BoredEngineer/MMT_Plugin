@@ -121,13 +121,10 @@ void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent * Target, co
 {
 	FBodyInstance* BodyInstance = GetBodyInstance(Target);
 	if (BodyInstance != NULL) {
-
-		PxRigidBody* PRigidBody = BodyInstance->GetPxRigidBody_AssumesLocked();
-
-		if (PRigidBody != NULL) {
-
-			PRigidBody->setMassSpaceInertiaTensor(U2PVector(InertiaTensor));
-
+		FPhysicsActorHandle PhyiscsActor = BodyInstance->GetPhysicsActorHandle();
+		if (PhyiscsActor.IsValid())
+		{
+			FPhysicsInterface::SetMassSpaceInertiaTensor_AssumesLocked(PhyiscsActor, InertiaTensor);
 		}
 	}
 }
