@@ -45,21 +45,21 @@ void UMMTSuspensionStack::Initialize()
 		GetDefaultWheelPosition();
 
 		//Line Trace default query parameters, called from here to have valid reference to parent
-		LineTraceQueryParameters.bTraceAsyncScene = false;
+		//LineTraceQueryParameters.bTraceAsyncScene = false;
 		LineTraceQueryParameters.bTraceComplex = false;
 		LineTraceQueryParameters.bReturnFaceIndex = false;
 		LineTraceQueryParameters.bReturnPhysicalMaterial = true;
 		LineTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
 
 		//Sphere Trace default query parameters, called from here to have valid reference to parent
-		SphereTraceQueryParameters.bTraceAsyncScene = false;
+		//SphereTraceQueryParameters.bTraceAsyncScene = false;
 		SphereTraceQueryParameters.bTraceComplex = false;
 		SphereTraceQueryParameters.bReturnFaceIndex = false;
 		SphereTraceQueryParameters.bReturnPhysicalMaterial = true;
 		SphereTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
 
 		//Shape Sweep default query parameters, called from here to have valid reference to parent
-		ShapeSweepQueryParameters.bTraceAsyncScene = false;
+		//ShapeSweepQueryParameters.bTraceAsyncScene = false;
 		ShapeSweepQueryParameters.bTraceComplex = false;
 		ShapeSweepQueryParameters.bReturnFaceIndex = false;
 		ShapeSweepQueryParameters.bReturnPhysicalMaterial = true;
