@@ -7,7 +7,7 @@
 #include "MMTSuspensionStackComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(Blueprintable, BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MMT_API UMMTSuspensionStackComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -18,6 +18,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Instanced, BlueprintReadWrite)
 	UMMTSuspensionStack* SuspensionStack;
+	
 
 	// Called when the game starts
 	virtual void BeginPlay() override;

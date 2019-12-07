@@ -15,26 +15,22 @@ UMMTSuspensionStack::UMMTSuspensionStack()
 
 void UMMTSuspensionStack::Initialize()
 {
-	//Initialize variables again, just in case!
-	bContactPointActive = false;
-	ContactInducedVelocity = FVector::ZeroVector;
-	ContactForceAtPoint = FVector::ZeroVector;
-	ContactPointLocation = FVector::ZeroVector;
-	ContactPointNormal = FVector::UpVector;
-	bSprungMeshComponentSetManually = false;
-	bSweepShapeMeshComponentSetManually = false;
-	ComponentName = FString("ComponentRefereneFailed");
-	ComponentsParentName = FString("ParentRefereneFailed");
-	bWarningMessageDisplayed = false;
-	WheelHubPositionLS = FVector::ZeroVector;
-	PreviousSpringLenght = 1.0f;
-	SuspensionForceMagnitude = 0.0f;
-	SuspensionForceLS = FVector::ZeroVector;
-	SuspensionForceWS = FVector::ZeroVector;
-	SuspensionForceScale = 1.0f;
+	//Check if suspension stack is a child of an actor or a component
+	USceneComponent* TryParent = nullptr;
+	if (GetOuter()->GetClass()->IsChildOf(AActor::StaticClass()))
+	{
+		//suspension stack was created inside of an actor, then we should use root component as a parent
+		TryParent = CastChecked<USceneComponent>(Cast<AActor>(GetOuter())->GetRootComponent());
+	}
+	else
+	{
+		if (GetOuter()->GetClass()->IsChildOf(USceneComponent::StaticClass()))
+		{
+			//suspension stack was created inside of a component, then we should use component as a parent
+			TryParent = CastChecked<USceneComponent>(GetOuter());
+		}
+	}
 
-
-	USceneComponent* TryParent = CastChecked<USceneComponent>(GetOuter());
 	if (IsValid(TryParent))
 	{
 		ParentComponentRef = TryParent;
@@ -45,21 +41,21 @@ void UMMTSuspensionStack::Initialize()
 		GetDefaultWheelPosition();
 
 		//Line Trace default query parameters, called from here to have valid reference to parent
-		//LineTraceQueryParameters.bTraceAsyncScene = false;
+		LineTraceQueryParameters.bTraceAsyncScene = false;
 		LineTraceQueryParameters.bTraceComplex = false;
 		LineTraceQueryParameters.bReturnFaceIndex = false;
 		LineTraceQueryParameters.bReturnPhysicalMaterial = true;
 		LineTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
 
 		//Sphere Trace default query parameters, called from here to have valid reference to parent
-		//SphereTraceQueryParameters.bTraceAsyncScene = false;
+		SphereTraceQueryParameters.bTraceAsyncScene = false;
 		SphereTraceQueryParameters.bTraceComplex = false;
 		SphereTraceQueryParameters.bReturnFaceIndex = false;
 		SphereTraceQueryParameters.bReturnPhysicalMaterial = true;
 		SphereTraceQueryParameters.AddIgnoredActor(ParentComponentRef->GetOwner());
 
 		//Shape Sweep default query parameters, called from here to have valid reference to parent
-		//ShapeSweepQueryParameters.bTraceAsyncScene = false;
+		ShapeSweepQueryParameters.bTraceAsyncScene = false;
 		ShapeSweepQueryParameters.bTraceComplex = false;
 		ShapeSweepQueryParameters.bReturnFaceIndex = false;
 		ShapeSweepQueryParameters.bReturnPhysicalMaterial = true;
@@ -71,7 +67,7 @@ void UMMTSuspensionStack::Initialize()
 		//Disable component to avoid potential null point reference
 		SuspensionSettings.bDisabled = true;
 
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%Inner Suspension Stack object failed to receive correct parent reference")));
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("Inner Suspension Stack object failed to receive correct parent reference")));
 		UE_LOG(LogTemp, Warning, TEXT("Inner Suspension Stack object failed to receive correct parent reference"));
 	}
 
@@ -83,12 +79,16 @@ void UMMTSuspensionStack::GetNamesForComponentAndParent()
 {
 		//Get names of component and its parent
 		ComponentName = ParentComponentRef->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("Component name: %s"), *ComponentName);
 		ComponentsParentName = ParentComponentRef->GetOwner()->GetName();
+		UE_LOG(LogTemp, Warning, TEXT("Component's parent name: %s"), *ComponentsParentName);
 }
 
 //Find and store reference to named components
 void UMMTSuspensionStack::GetNamedComponentsReference()
 {
+	UE_LOG(LogTemp, Warning, TEXT("bSprungMeshComponentSetManually is: %s"), bSprungMeshComponentSetManually ? TEXT("true") : TEXT("false"));
+	
 	//Sprung mesh reference
 	if (!bSprungMeshComponentSetManually)
 	{
@@ -137,6 +137,7 @@ void UMMTSuspensionStack::PreCalculateParameters()
 	SpringOffsetTopAdjusted = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringTopOffset : SuspensionSettings.SpringTopOffset;
 	SpringOffsetBottomAdjusted = SuspensionSettings.bUseCustomPosition ? SuspensionSettings.StackLocalPosition + SuspensionSettings.SpringBottomOffset : SuspensionSettings.SpringBottomOffset;
 
+
 	//Calculate spring direction in local coordinate system
 	SpringDirectionLocal = SpringOffsetBottomAdjusted - SpringOffsetTopAdjusted;
 	SpringMaxLenght = SpringDirectionLocal.Size();
@@ -164,7 +165,15 @@ void UMMTSuspensionStack::PhysicsUpdate(const float& DeltaTime)
 	if (!SuspensionSettings.bDisabled)
 	{
 		//Update world space transform of parent component
-		ReferenceFrameTransform = UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
+		if (SuspensionSettings.bUseCustomTransform)
+		{
+			ReferenceFrameTransform = SuspensionSettings.StackLocalTransform * UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
+		}
+		else
+		{
+			ReferenceFrameTransform = UMMTBPFunctionLibrary::MMTGetTransformComponent(ParentComponentRef, NAME_None);
+		}
+		
 
 		UpdateWheelHubPosition();
 
@@ -286,7 +295,9 @@ void UMMTSuspensionStack::ShapeSweepForContact()
 		ShapeSweepQueryParameters);
 
 	//Dirty but assumption is that contact information is never used if bContactPointActive is false.
-	if (bContactPointActive)
+	//if (bContactPointActive)
+	// apparently ComponentSweepMulti() can return true but OutHit array will be empty when SweepMesh doesn't have proper physics settings. With QueryOnly it seams to be working fine.
+	if(ShapeSweepOutHits.Num()>0)
 	{
 		FHitResult ShapeSweepClosestOutHit = ShapeSweepOutHits[0];
 		
@@ -585,8 +596,49 @@ FVector UMMTSuspensionStack::GetWheelHubPosition(bool bInWorldSpace)
 	}
 	else
 	{
-		return WheelHubPositionLS;
+		if (SuspensionSettings.bUseCustomTransform)
+		{
+			return SuspensionSettings.StackLocalTransform.TransformPosition(WheelHubPositionLS);
+		}
+		else
+		{
+			return WheelHubPositionLS;
+		}
 	}
+}
+
+FTransform UMMTSuspensionStack::GetWheelHubTransform(bool bInWorldSpace)
+{
+	FTransform TransformOut;
+	if (bInWorldSpace)
+	{
+		if (SuspensionSettings.bUseCustomTransform)
+		{
+			TransformOut = SuspensionSettings.StackLocalTransform * ReferenceFrameTransform;
+			TransformOut.SetLocation(TransformOut.TransformPosition(WheelHubPositionLS));
+		}
+		else
+		{
+			TransformOut = ReferenceFrameTransform;
+			TransformOut.SetLocation(ReferenceFrameTransform.TransformPosition(WheelHubPositionLS));
+			return TransformOut;
+		}
+	}
+	else
+	{
+		if (SuspensionSettings.bUseCustomTransform)
+		{
+			TransformOut = SuspensionSettings.StackLocalTransform;
+			TransformOut.SetLocation(SuspensionSettings.StackLocalTransform.TransformPosition(WheelHubPositionLS));
+			return TransformOut;
+		}
+		else
+		{
+			TransformOut.SetLocation(WheelHubPositionLS);
+			return TransformOut;
+		}
+	}
+	return TransformOut;
 }
 
 
