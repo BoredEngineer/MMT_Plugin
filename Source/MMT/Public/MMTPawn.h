@@ -24,7 +24,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	
 	// Called every frame after physics update
-	void TickPostPhysics(float DeltaSeconds, ELevelTick TickType, FSecondaryTickFunction& ThisTickFunction);
+	virtual void TickPostPhysics(float DeltaSeconds, ELevelTick TickType, FSecondaryTickFunction& ThisTickFunction);
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -43,7 +43,7 @@ public:
 	virtual void MMTPhysicsTick_Implementation(float SubstepDeltaTime);
 	
 	/* This event is called ones per frame after physics update. */
-	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "MMT Post-Physics Tick"), Category = "MMT")
+	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "MMT Post-Physics Tick"), Category = "MMT physics sub-stepping")
 	void MMTAfterPhysicsTick(float DeltaTime);
 	virtual void MMTAfterPhysicsTick_Implementation(float DeltaTime);
 

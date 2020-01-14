@@ -25,7 +25,7 @@ struct FSuspensionStackStruct
 {
 	GENERATED_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Disables component from doing physics calculations and applying forces, useful for debugging."))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Disables component from doing physics calculations and applying forces, useful for debugging."))
 		bool bDisabled;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Suspension simulation mode in which suspension stack starts by default. Simulation mode can be later changed in real-time (useful for LODs). RayCheck - is simplest and fastest but works correctly only on relatively smooth terrain. Shape Sweep - works with any type of terrain and obstacles but more expensive than RayCheck. Tread Simulation - road-wheels will collide with dynamic track surface, provides the most accurate simulation compared to other modes (requires track simulation component to work)"))
@@ -36,6 +36,12 @@ struct FSuspensionStackStruct
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (EditCondition = "bUseCustomPosition", ToolTip = "Local position of the stack in relation to component. Normally a point where suspension would be physically attached to the chassis"))
 		FVector StackLocalPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Similar to UseCustomPosition but will use whole transform, can be used together with CustomPosition. Set to TRUE when array of stacks is used inside of a single component, otherwise all stacks will be share the same transform"))
+		uint32 bUseCustomTransform : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (EditCondition = "bUseCustomTransform", ToolTip = "Local transform of the stack in relation to component. Normally a point where suspension would be physically attached to the chassis"))
+		FTransform StackLocalTransform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "General", meta = (ToolTip = "Radius of the road-wheel in cm. Needed for when track is using simulation feature or when IsShapeTrace is off and ray-check is used instead of sweeps"))
 		float RoadWheelRadius;
@@ -90,6 +96,7 @@ struct FSuspensionStackStruct
 		SimulationMode = ESuspensionSimMode::RayCheck;
 		bUseCustomPosition = false;
 		StackLocalPosition = FVector::ZeroVector;
+		bUseCustomTransform = false;
 		RoadWheelRadius = 15.0;
 		TrackThickness = 3.0;
 		SpringTopOffset = FVector(0, 0, 10);
@@ -109,7 +116,9 @@ struct FSuspensionStackStruct
 };
 
 
-UCLASS(EditInlineNew)
+//UCLASS(EditInlineNew, BlueprintType)
+//UCLASS(DefaultToInstanced, EditInlineNew, BlueprintType)
+UCLASS(Blueprintable, BlueprintType, EditInlineNew)
 class MMT_API UMMTSuspensionStack : public UObject
 {
 	GENERATED_BODY()
@@ -166,11 +175,18 @@ public:
 		void GetContactData(bool& bPointActive, FVector& ForceAtPoint, FVector& PointLocation, FVector& SurfaceNormal, class UPhysicalMaterial*& SurfacePhysicalMaterial, FVector& SurfaceVelocity);
 
 	/**
-	*	Get last calculated suspension force
-	*	@return		Wheel hub position in local space
+	*	Get wheel hub position
+	*	@return		Wheel hub position in local or world space
 	*/
 	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
 		FVector GetWheelHubPosition(bool bInWorldSpace=false);
+
+	/**
+	*	Get wheel hub transform
+	*	@return		Wheel hub transform in local or world space
+	*/
+	UFUNCTION(BlueprintCallable, Category = "MMT Suspension Stack")
+		FTransform GetWheelHubTransform(bool bInWorldSpace);
 
 	/**
 	*	Set reference of sprung mesh component manually
@@ -265,7 +281,7 @@ private:
 	UPROPERTY()
 		FVector WheelHubPositionLS = FVector::ZeroVector;
 	UPROPERTY()
-		float PreviousSpringLenght;
+		float PreviousSpringLenght = 1.0f;
 	UPROPERTY()
 		float SuspensionForceMagnitude = 0.0f;
 	UPROPERTY()
@@ -303,13 +319,13 @@ private:
 	UPROPERTY()
 		bool bContactPointActive = false;
 	UPROPERTY()
-		FVector ContactInducedVelocity;
+		FVector ContactInducedVelocity = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactForceAtPoint;
+		FVector ContactForceAtPoint = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactPointLocation;
+		FVector ContactPointLocation = FVector::ZeroVector;
 	UPROPERTY()
-		FVector ContactPointNormal;
+		FVector ContactPointNormal = FVector::UpVector;
 	UPROPERTY()
 		UPhysicalMaterial* ContactPhysicalMaterial;
 	
