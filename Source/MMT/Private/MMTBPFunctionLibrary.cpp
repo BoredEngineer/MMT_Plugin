@@ -140,7 +140,9 @@ UMeshComponent* UMMTBPFunctionLibrary::GetMeshComponentReferenceByName(UActorCom
 	if (IsValid(Target))
 	{
 		AActor* Owner = Target->GetOwner();
-		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UMeshComponent::StaticClass());
+		//TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UMeshComponent::StaticClass()); //flagged as deprecated in 4.24
+		TArray<UActorComponent*> FoundComponents;
+		Owner->GetComponents(UMeshComponent::StaticClass(), FoundComponents);
 
 		UMeshComponent* Result;
 
@@ -165,8 +167,10 @@ USplineComponent* UMMTBPFunctionLibrary::GetSplineComponentReferenceByName(UActo
 	if (IsValid(Target))
 	{
 		AActor* Owner = Target->GetOwner();
-		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(USplineComponent::StaticClass());
-
+		//TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(USplineComponent::StaticClass());//flagged as deprecated in 4.24
+		TArray<UActorComponent*> FoundComponents;
+		Owner->GetComponents(USplineComponent::StaticClass(), FoundComponents);
+		
 		USplineComponent* Result;
 
 		for (int32 i = 0; i < FoundComponents.Num(); i++)
@@ -190,7 +194,9 @@ UInstancedStaticMeshComponent* UMMTBPFunctionLibrary::GetInstancedStaticMeshComp
 	if (IsValid(Target))
 	{
 		AActor* Owner = Target->GetOwner();
-		TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UInstancedStaticMeshComponent::StaticClass());
+		//TArray<UActorComponent*> FoundComponents = Owner->GetComponentsByClass(UInstancedStaticMeshComponent::StaticClass()); //flagged as deprecated in 4.24
+		TArray<UActorComponent*> FoundComponents;
+		Owner->GetComponents(UInstancedStaticMeshComponent::StaticClass(), FoundComponents);
 
 		UInstancedStaticMeshComponent* Result;
 
