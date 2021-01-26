@@ -14,9 +14,6 @@ AMMTPawn::AMMTPawn()
 	SecondaryTick.TickGroup = TG_PostPhysics;
 	SecondaryTick.bCanEverTick = true;
 	SecondaryTick.bStartWithTickEnabled = true;
-
-	// Bind function delegate
-	OnCalculateCustomPhysics.BindUObject(this, &AMMTPawn::CustomPhysics);
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +24,16 @@ void AMMTPawn::BeginPlay()
 		RootBodyInstance = PawnRootComponent->GetBodyInstance();
 	}
 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FPhysScene* PScene = World->GetPhysicsScene();
+		if (PScene)
+		{
+			// Register physics step delegate
+			OnPhysSceneStepHandle = PScene->OnPhysSceneStep.AddUObject(this, &AMMTPawn::PhysSceneStep);
+		}
+	}
 	Super::BeginPlay();
 
 	
@@ -42,16 +49,21 @@ void AMMTPawn::BeginPlay()
 	
 }
 
-// Called every frame
-void AMMTPawn::Tick(float DeltaTime)
+// Called whenever this actor is being removed from a level
+void AMMTPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::Tick(DeltaTime);
-
-	// Add custom physics on Root's BodyInstance
-	if (RootBodyInstance != NULL) {
-		RootBodyInstance->AddCustomPhysics(OnCalculateCustomPhysics);
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FPhysScene* PScene = World->GetPhysicsScene();
+		if (PScene)
+		{
+			// Unregister physics step delegate
+			PScene->OnPhysSceneStep.Remove(OnPhysSceneStepHandle);
+		}
 	}
 
+	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame after physics update
@@ -78,8 +90,8 @@ void AMMTPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-// Called by OnCalculateCustomPhysics delegate when physics update is initiated
-void AMMTPawn::CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance)
+// Called by OnPhysSceneStepHandle delegate when physics update is initiated
+void AMMTPawn::PhysSceneStep(FPhysScene* PhysScene, uint32 SceneType, float DeltaTime)
 {
 	MMTPawnTransform = MMTGetTransformThisPawn();
 	MMTPhysicsTick(DeltaTime);
