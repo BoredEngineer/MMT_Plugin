@@ -4,6 +4,7 @@
 
 #include "GameFramework/Pawn.h"
 #include "MMTSecondaryTick.h"
+#include "PhysicsEngine/BodyInstance.h"
 #include "MMTPawn.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
+
+	// Called whenever this actor is being removed from a level
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 	
 	// Called every frame after physics update
 	virtual void TickPostPhysics(float DeltaSeconds, ELevelTick TickType, FSecondaryTickFunction& ThisTickFunction);
@@ -34,8 +38,12 @@ public:
 	FTransform MMTPawnTransform = FTransform::Identity;
 
 	// Delegate for running custom physics update
-	FCalculateCustomPhysics OnCalculateCustomPhysics;
-	void CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance);
+	//FCalculateCustomPhysics OnCalculateCustomPhysics;
+	//void CustomPhysics(float DeltaTime, FBodyInstance* BodyInstance);
+	
+	// Delegate for physics step
+	FDelegateHandle OnPhysSceneStepHandle;
+	void PhysSceneStep(FPhysScene* PhysScene, float DeltaTime);
 
 	/* This event is called on every physics tick, including sub-steps. */
 	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "MMT Physics Tick"), Category = "MMT physics sub-stepping")

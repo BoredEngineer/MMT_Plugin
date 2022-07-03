@@ -2,6 +2,7 @@
 
 #include "MMTPluginPCH.h"
 #include "MMTBPFunctionLibrary.h"
+#include "PhysicsProxy/SingleParticlePhysicsProxy.h"
 
 
 //For UE4 Profiler ~ Stat
@@ -116,19 +117,19 @@ void UMMTBPFunctionLibrary::MMTAddTorqueComponent(UPrimitiveComponent * Target, 
 	}
 }
 
+
 // AddTorque to a component using BodyInstance as its valid during physics sub-stepping
-void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent * Target, const FVector& InertiaTensor)
+void UMMTBPFunctionLibrary::MMTSetInertiaTensor(UPrimitiveComponent* Target, const FVector& InertiaTensor)
 {
 	FBodyInstance* BodyInstance = GetBodyInstance(Target);
 	if (BodyInstance != NULL) {
 		FPhysicsActorHandle PhyiscsActor = BodyInstance->GetPhysicsActorHandle();
-		if (PhyiscsActor.IsValid())
+		if (PhyiscsActor->IsInitialized())
 		{
 			FPhysicsInterface::SetMassSpaceInertiaTensor_AssumesLocked(PhyiscsActor, InertiaTensor);
 		}
 	}
 }
-
 
 
 

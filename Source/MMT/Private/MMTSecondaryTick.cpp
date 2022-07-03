@@ -9,7 +9,7 @@ void FSecondaryTickFunction::ExecuteTick( float DeltaTime, ELevelTick TickType, 
 {
 	//if (Target && !Target->HasAnyFlags(RF_PendingKill | RF_Unreachable))
 	//if (Target && !Target->HasAnyFlags(RF_BeginDestroyed) && !Target->IsValidLowLevel())
-	if (Target && !Target->IsPendingKillOrUnreachable())
+	if (Target && IsValid(Target))
 	{
 		FScopeCycleCounterUObject ActorScope(Target);
 		Target->TickPostPhysics(DeltaTime, TickType, *this);
