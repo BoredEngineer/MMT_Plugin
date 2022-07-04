@@ -7,6 +7,8 @@
 #include "PhysicsEngine/BodyInstance.h"
 #include "MMTPawn.generated.h"
 
+class FMMTAsyncCallback;
+
 UCLASS()
 class MMT_API AMMTPawn : public APawn
 {
@@ -71,4 +73,5 @@ protected:
 	FBodyInstance* RootBodyInstance;
 	static FBodyInstance* GetBodyInstance(UPrimitiveComponent* PrimitiveComponent);
 
+	FMMTAsyncCallback* AsyncCallback;
 };
