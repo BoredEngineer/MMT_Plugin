@@ -1,6 +1,8 @@
 //Copyright(c) 2016 Viktor Kuropiatnyk "BoredEngineer"
 
 #include "MMTPluginPCH.h"
+#include "PBDRigidsSolver.h"
+#include "MMTAsyncCallback.h"
 #include "MMTPawn.h"
 
 // Sets default values
@@ -30,13 +32,18 @@ void AMMTPawn::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World)
 	{
+#if WITH_CHAOS
+		FPhysScene_Chaos& PScene = *World->GetPhysicsScene();
+		AsyncCallback = PScene.GetSolver()->CreateAndRegisterSimCallbackObject_External<FMMTAsyncCallback>();
+		AsyncCallback->SetMMTPawn(this);
+#else
 		FPhysScene* PScene = World->GetPhysicsScene();
 		if (PScene)
 		{
 			// Register physics step delegate
-			//OnPhysSceneStepHandle = PScene->OnPhysSceneStep.AddUObject(this, &AMMTPawn::PhysSceneStep);
-			OnPhysSceneStepHandle = PScene->OnPhysScenePreTick.AddUObject(this, &AMMTPawn::PhysSceneStep);
+			OnPhysSceneStepHandle = PScene->OnPhysSceneStep.AddUObject(this, &AMMTPawn::PhysSceneStep);
 		}
+#endif
 	}
 
 
@@ -76,13 +83,21 @@ void AMMTPawn::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	UWorld* World = GetWorld();
 	if (World)
 	{
+#if WITH_CHAOS
+		FPhysScene_Chaos& PScene = *World->GetPhysicsScene();
+		if (AsyncCallback)
+		{
+			PScene.GetSolver()->UnregisterAndFreeSimCallbackObject_External(AsyncCallback);
+			AsyncCallback = nullptr;
+		}
+#else
 		FPhysScene* PScene = World->GetPhysicsScene();
 		if (PScene)
 		{
 			// Unregister physics step delegate
-			//PScene->OnPhysSceneStep.Remove(OnPhysSceneStepHandle);
-			PScene->OnPhysScenePreTick.Remove(OnPhysSceneStepHandle);
+			PScene->OnPhysSceneStep.Remove(OnPhysSceneStepHandle);
 		}
+#endif
 	}
 
 	Super::EndPlay(EndPlayReason);

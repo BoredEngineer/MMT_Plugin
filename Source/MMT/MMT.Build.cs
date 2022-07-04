@@ -22,7 +22,8 @@ public class MMT : ModuleRules
 				"SlateCore",
 				"PhysX",
                 "APEX",
-				"PhysicsCore"
+				"PhysicsCore",
+				"Chaos"
             }
 		);
     }
